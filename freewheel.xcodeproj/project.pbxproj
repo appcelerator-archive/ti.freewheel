@@ -1,0 +1,408 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		24416B8111C4CA220047AFDD /* Build & Test */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 24416B8A11C4CA520047AFDD /* Build configuration list for PBXAggregateTarget "Build & Test" */;
+			buildPhases = (
+				24416B8011C4CA220047AFDD /* ShellScript */,
+			);
+			dependencies = (
+				24416B8511C4CA280047AFDD /* PBXTargetDependency */,
+			);
+			name = "Build & Test";
+			productName = "Build & test";
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		247ACB2C145780A400CB9BFC /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 247ACB2A1457807000CB9BFC /* CoreLocation.framework */; };
+		247ACB2D145780A400CB9BFC /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 247ACB281457806900CB9BFC /* MediaPlayer.framework */; };
+		247ACB2E145780A400CB9BFC /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 247ACB261457806200CB9BFC /* QuartzCore.framework */; };
+		247ACB2F145780A400CB9BFC /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 247ACB241457805C00CB9BFC /* CoreGraphics.framework */; };
+		247ACB30145780A400CB9BFC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 247ACB221457805700CB9BFC /* UIKit.framework */; };
+		247ACB31145780A400CB9BFC /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 247ACB1F1457804700CB9BFC /* libxml2.dylib */; };
+		247ACB32145780A400CB9BFC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
+		247ACB35145780BD00CB9BFC /* AdManager.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 247ACB33145780AD00CB9BFC /* AdManager.framework */; };
+		247ACB401457869100CB9BFC /* libAdManager.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 247ACB3F1457869100CB9BFC /* libAdManager.a */; };
+		24DBB2131458A70A00DEC93A /* TiFreewheelAdManagerProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DBB2111458A70A00DEC93A /* TiFreewheelAdManagerProxy.h */; };
+		24DBB2141458A70A00DEC93A /* TiFreewheelAdManagerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DBB2121458A70A00DEC93A /* TiFreewheelAdManagerProxy.m */; };
+		24DD6CF91134B3F500162E58 /* TiFreewheelModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DD6CF71134B3F500162E58 /* TiFreewheelModule.h */; };
+		24DD6CFA1134B3F500162E58 /* TiFreewheelModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DD6CF81134B3F500162E58 /* TiFreewheelModule.m */; };
+		24DE9E1111C5FE74003F90F6 /* TiFreewheelModuleAssets.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DE9E0F11C5FE74003F90F6 /* TiFreewheelModuleAssets.h */; };
+		24DE9E1211C5FE74003F90F6 /* TiFreewheelModuleAssets.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DE9E1011C5FE74003F90F6 /* TiFreewheelModuleAssets.m */; };
+		24FF7964146617DE00509351 /* FWPlayerCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = 24FF7962146617DE00509351 /* FWPlayerCommon.h */; };
+		24FF7965146617DE00509351 /* FWPlayerCommon.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FF7963146617DE00509351 /* FWPlayerCommon.m */; };
+		AA747D9F0F9514B9006C5449 /* TiFreewheel_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* TiFreewheel_Prefix.pch */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		24416B8411C4CA280047AFDD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC07D0554694100DB518D;
+			remoteInfo = freewheel;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		247ACB1F1457804700CB9BFC /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
+		247ACB221457805700CB9BFC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		247ACB241457805C00CB9BFC /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		247ACB261457806200CB9BFC /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		247ACB281457806900CB9BFC /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
+		247ACB2A1457807000CB9BFC /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		247ACB33145780AD00CB9BFC /* AdManager.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AdManager.framework; sourceTree = "<group>"; };
+		247ACB37145780EA00CB9BFC /* FW_Back_Button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = FW_Back_Button.png; path = AdManager.framework/Resources/FW_Back_Button.png; sourceTree = "<group>"; };
+		247ACB38145780EA00CB9BFC /* FW_Forward_Button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = FW_Forward_Button.png; path = AdManager.framework/Resources/FW_Forward_Button.png; sourceTree = "<group>"; };
+		247ACB3F1457869100CB9BFC /* libAdManager.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAdManager.a; path = AdManager.framework/Libraries/libAdManager.a; sourceTree = "<group>"; };
+		24DBB2111458A70A00DEC93A /* TiFreewheelAdManagerProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiFreewheelAdManagerProxy.h; path = Classes/TiFreewheelAdManagerProxy.h; sourceTree = "<group>"; };
+		24DBB2121458A70A00DEC93A /* TiFreewheelAdManagerProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiFreewheelAdManagerProxy.m; path = Classes/TiFreewheelAdManagerProxy.m; sourceTree = "<group>"; };
+		24DD6CF71134B3F500162E58 /* TiFreewheelModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiFreewheelModule.h; path = Classes/TiFreewheelModule.h; sourceTree = "<group>"; };
+		24DD6CF81134B3F500162E58 /* TiFreewheelModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiFreewheelModule.m; path = Classes/TiFreewheelModule.m; sourceTree = "<group>"; };
+		24DD6D1B1134B66800162E58 /* titanium.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = titanium.xcconfig; sourceTree = "<group>"; };
+		24DE9E0F11C5FE74003F90F6 /* TiFreewheelModuleAssets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiFreewheelModuleAssets.h; path = Classes/TiFreewheelModuleAssets.h; sourceTree = "<group>"; };
+		24DE9E1011C5FE74003F90F6 /* TiFreewheelModuleAssets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiFreewheelModuleAssets.m; path = Classes/TiFreewheelModuleAssets.m; sourceTree = "<group>"; };
+		24FF7962146617DE00509351 /* FWPlayerCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FWPlayerCommon.h; path = Classes/FWPlayerCommon.h; sourceTree = "<group>"; };
+		24FF7963146617DE00509351 /* FWPlayerCommon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FWPlayerCommon.m; path = Classes/FWPlayerCommon.m; sourceTree = "<group>"; };
+		AA747D9E0F9514B9006C5449 /* TiFreewheel_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiFreewheel_Prefix.pch; sourceTree = SOURCE_ROOT; };
+		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		D2AAC07E0554694100DB518D /* libTiFreewheel.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libTiFreewheel.a; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D2AAC07C0554694100DB518D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				247ACB401457869100CB9BFC /* libAdManager.a in Frameworks */,
+				247ACB32145780A400CB9BFC /* Foundation.framework in Frameworks */,
+				247ACB2C145780A400CB9BFC /* CoreLocation.framework in Frameworks */,
+				247ACB2D145780A400CB9BFC /* MediaPlayer.framework in Frameworks */,
+				247ACB2E145780A400CB9BFC /* QuartzCore.framework in Frameworks */,
+				247ACB2F145780A400CB9BFC /* CoreGraphics.framework in Frameworks */,
+				247ACB30145780A400CB9BFC /* UIKit.framework in Frameworks */,
+				247ACB31145780A400CB9BFC /* libxml2.dylib in Frameworks */,
+				247ACB35145780BD00CB9BFC /* AdManager.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		034768DFFF38A50411DB9C8B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D2AAC07E0554694100DB518D /* libTiFreewheel.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0867D691FE84028FC02AAC07 /* freewheel */ = {
+			isa = PBXGroup;
+			children = (
+				247ACB3F1457869100CB9BFC /* libAdManager.a */,
+				247ACB36145780D000CB9BFC /* Resources */,
+				08FB77AEFE84172EC02AAC07 /* Classes */,
+				32C88DFF0371C24200C91783 /* Other Sources */,
+				0867D69AFE84028FC02AAC07 /* Frameworks */,
+				034768DFFF38A50411DB9C8B /* Products */,
+			);
+			name = freewheel;
+			sourceTree = "<group>";
+		};
+		0867D69AFE84028FC02AAC07 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				247ACB33145780AD00CB9BFC /* AdManager.framework */,
+				247ACB2A1457807000CB9BFC /* CoreLocation.framework */,
+				247ACB281457806900CB9BFC /* MediaPlayer.framework */,
+				247ACB261457806200CB9BFC /* QuartzCore.framework */,
+				247ACB241457805C00CB9BFC /* CoreGraphics.framework */,
+				247ACB221457805700CB9BFC /* UIKit.framework */,
+				247ACB1F1457804700CB9BFC /* libxml2.dylib */,
+				AACBBE490F95108600F1A2B1 /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		08FB77AEFE84172EC02AAC07 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				24FF7962146617DE00509351 /* FWPlayerCommon.h */,
+				24FF7963146617DE00509351 /* FWPlayerCommon.m */,
+				24DE9E0F11C5FE74003F90F6 /* TiFreewheelModuleAssets.h */,
+				24DE9E1011C5FE74003F90F6 /* TiFreewheelModuleAssets.m */,
+				24DD6CF71134B3F500162E58 /* TiFreewheelModule.h */,
+				24DD6CF81134B3F500162E58 /* TiFreewheelModule.m */,
+				24DBB2111458A70A00DEC93A /* TiFreewheelAdManagerProxy.h */,
+				24DBB2121458A70A00DEC93A /* TiFreewheelAdManagerProxy.m */,
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
+		247ACB36145780D000CB9BFC /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				247ACB37145780EA00CB9BFC /* FW_Back_Button.png */,
+				247ACB38145780EA00CB9BFC /* FW_Forward_Button.png */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		32C88DFF0371C24200C91783 /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				AA747D9E0F9514B9006C5449 /* TiFreewheel_Prefix.pch */,
+				24DD6D1B1134B66800162E58 /* titanium.xcconfig */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		D2AAC07A0554694100DB518D /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA747D9F0F9514B9006C5449 /* TiFreewheel_Prefix.pch in Headers */,
+				24DD6CF91134B3F500162E58 /* TiFreewheelModule.h in Headers */,
+				24DE9E1111C5FE74003F90F6 /* TiFreewheelModuleAssets.h in Headers */,
+				24DBB2131458A70A00DEC93A /* TiFreewheelAdManagerProxy.h in Headers */,
+				24FF7964146617DE00509351 /* FWPlayerCommon.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		D2AAC07D0554694100DB518D /* freewheel */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1DEB921E08733DC00010E9CD /* Build configuration list for PBXNativeTarget "freewheel" */;
+			buildPhases = (
+				D2AAC07A0554694100DB518D /* Headers */,
+				D2AAC07B0554694100DB518D /* Sources */,
+				D2AAC07C0554694100DB518D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = freewheel;
+			productName = freewheel;
+			productReference = D2AAC07E0554694100DB518D /* libTiFreewheel.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0867D690FE84028FC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "freewheel" */;
+			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
+			mainGroup = 0867D691FE84028FC02AAC07 /* freewheel */;
+			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D2AAC07D0554694100DB518D /* freewheel */,
+				24416B8111C4CA220047AFDD /* Build & Test */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		24416B8011C4CA220047AFDD /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here\n\npython \"${TITANIUM_SDK}/titanium.py\" run --dir=\"${PROJECT_DIR}\"\nexit $?\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D2AAC07B0554694100DB518D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24DD6CFA1134B3F500162E58 /* TiFreewheelModule.m in Sources */,
+				24DE9E1211C5FE74003F90F6 /* TiFreewheelModuleAssets.m in Sources */,
+				24DBB2141458A70A00DEC93A /* TiFreewheelAdManagerProxy.m in Sources */,
+				24FF7965146617DE00509351 /* FWPlayerCommon.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		24416B8511C4CA280047AFDD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D2AAC07D0554694100DB518D /* freewheel */;
+			targetProxy = 24416B8411C4CA280047AFDD /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB921F08733DC00010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 24DD6D1B1134B66800162E58 /* titanium.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				COPY_PHASE_STRIP = NO;
+				DSTROOT = /tmp/TiFreewheel.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = TiFreewheel_Prefix.pch;
+				INSTALL_PATH = /usr/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/AdManager.framework\"",
+					/Users/fspencer/Desktop/FWPlayer/AdManager.framework/Libraries,
+					"\"$(SRCROOT)/AdManager.framework/Libraries\"",
+				);
+				PRODUCT_NAME = TiFreewheel;
+			};
+			name = Debug;
+		};
+		1DEB922008733DC00010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 24DD6D1B1134B66800162E58 /* titanium.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				DSTROOT = /tmp/TiFreewheel.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = TiFreewheel_Prefix.pch;
+				INSTALL_PATH = /usr/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/AdManager.framework\"",
+					/Users/fspencer/Desktop/FWPlayer/AdManager.framework/Libraries,
+					"\"$(SRCROOT)/AdManager.framework/Libraries\"",
+				);
+				PRODUCT_NAME = TiFreewheel;
+			};
+			name = Release;
+		};
+		1DEB922308733DC00010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 24DD6D1B1134B66800162E58 /* titanium.xcconfig */;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_ABOUT_RETURN_TYPE = NO;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PREBINDING = NO;
+				SDKROOT = iphoneos4.0;
+			};
+			name = Debug;
+		};
+		1DEB922408733DC00010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 24DD6D1B1134B66800162E58 /* titanium.xcconfig */;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_WARN_ABOUT_RETURN_TYPE = NO;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PREBINDING = NO;
+				SDKROOT = iphoneos4.0;
+			};
+			name = Release;
+		};
+		24416B8211C4CA220047AFDD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 24DD6D1B1134B66800162E58 /* titanium.xcconfig */;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = "Build & test";
+			};
+			name = Debug;
+		};
+		24416B8311C4CA220047AFDD /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 24DD6D1B1134B66800162E58 /* titanium.xcconfig */;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PRODUCT_NAME = "Build & test";
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB921E08733DC00010E9CD /* Build configuration list for PBXNativeTarget "freewheel" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB921F08733DC00010E9CD /* Debug */,
+				1DEB922008733DC00010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "freewheel" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB922308733DC00010E9CD /* Debug */,
+				1DEB922408733DC00010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		24416B8A11C4CA520047AFDD /* Build configuration list for PBXAggregateTarget "Build & Test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				24416B8211C4CA220047AFDD /* Debug */,
+				24416B8311C4CA220047AFDD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0867D690FE84028FC02AAC07 /* Project object */;
+}

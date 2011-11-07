@@ -47,14 +47,11 @@
 - (void)start:(id)args
 {
     ENSURE_UI_THREAD_0_ARGS;
-    
-    // we'll lose data if we aren't careful with how we deal with this value
-    long long convertedNetworkId = [networkId longLongValue];
         
     adManager = newAdManager();
     
     [adManager setLocation:nil];
-    [adManager setNetworkId:convertedNetworkId]; // converted string before setting
+    [adManager setNetworkId:[networkId longLongValue]];
 	[adManager setServerUrl:serverUrl];
     
     locationManager = [[CLLocationManager alloc] init];
@@ -69,25 +66,26 @@
 {
     [adManager setCurrentViewController:controller];
     
-    NSLog(@"Set current controller to: %@", controller);
+    NSLog(@"[DEBUG] Set current controller to: %@", controller);
 }
 
-- (void)setAdContext:(NSDictionary *)properties
+- (void)setAdContext:(id)args
 {    
-    ENSURE_UI_THREAD_0_ARGS;
+    ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+	ENSURE_UI_THREAD_1_ARG(args);
     
-    TiMediaVideoPlayerProxy *videoPlayer = [properties objectForKey:@"player"];
-    currentSiteSection = [properties objectForKey:@"siteSection"];
-    currentVideoId = [properties objectForKey:@"videoId"];
-    currentProfile = [properties objectForKey:@"profile"];
+    TiMediaVideoPlayerProxy *videoPlayer = [args objectForKey:@"player"];
+    currentSiteSection = [args objectForKey:@"siteSection"];
+    currentVideoId = [args objectForKey:@"videoId"];
+    currentProfile = [args objectForKey:@"profile"];
     
-    for (NSString *key in properties) {
-        NSLog(@"[DEBUG] %@ is set on %@", key, [properties objectForKey:key]);
+    for (NSString *key in args) {
+        NSLog(@"[DEBUG] %@ is set on %@", key, [args objectForKey:key]);
     }
     
     [self setCurrentController:[[TiApp app] controller]];
              
-    currentPlayer = [videoPlayer player];
+    currentPlayer = [videoPlayer player]; // we do get access to this, even though xcode is complaining
     
     NSLog(@"[DEBUG] Set current player and created ad context");
     
@@ -101,15 +99,11 @@
     WARN_IF_BACKGROUND_THREAD_OBJ;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAdRequestComplete:) name:FW_NOTIFICATION_REQUEST_COMPLETE object:adContext];
     
-    [adContext addKeyValue:@"module" :@"VideoAdRenderer"];	
-	[adContext addKeyValue:@"adType" :@"video/mp4-mepg4_simple"];
-    
     [adContext setProfile:currentProfile :nil :nil :nil];
-    [adContext setSiteSection:currentSiteSection :0 :0 :FW_ID_TYPE_CUSTOM :0];		
-	[adContext setVideoAsset:currentVideoId :160 :nil :true :0 :0 :FW_ID_TYPE_CUSTOM :0 :FW_VIDEO_ASSET_DURATION_TYPE_EXACT];
+    [adContext setSiteSection:currentSiteSection :0 :[networkId longLongValue] :FW_ID_TYPE_CUSTOM :0];		
+	[adContext setVideoAsset:currentVideoId :160 :nil :true :0 :0 :FW_ID_TYPE_CUSTOM :35437170 :FW_VIDEO_ASSET_DURATION_TYPE_EXACT];
 	
-	[adContext addSiteSectionNonTemporalSlot:@"nontemporal-slot-1-1" :nil :320 :44 :nil :YES :FW_SLOT_OPTION_INITIAL_AD_STAND_ALONE :@"text/html_doc_lit_mobile" :nil];	
-	[adContext addTemporalSlot:@"temporal-slot-preroll" :FW_ADUNIT_PREROLL :0 :nil :0 :0 :nil :nil :0];			
+    [adContext setMoviePlayerController:currentPlayer];
     
     NSLog(@"[DEBUG] Created ad context and submitting request");
     
@@ -131,7 +125,7 @@
 - (void)onAdRequestComplete:(NSNotification *)notification 
 {    
     NSLog(@"[DEBUG] Add response recieved");
-    NSLog(@"Attempting to setup player based on response");
+    NSLog(@"[DEBUG] Attempting to setup player based on response");
     
     if ([self _hasListeners:@"onadresponse"]) {
         [self fireEvent:@"onadresponse" withObject:[notification userInfo]];
@@ -144,31 +138,18 @@
             [self fireEvent:@"onadresponseerror" withObject:[notification userInfo]];
         }
     } else {
-        NSLog(@"Ad response looks good");
-        NSLog(@"Setting MP controller and attempting to play ads");
+        NSLog(@"[DEBUG] Ad response looks good");
+        NSLog(@"[DEBUG] Setting MP controller and attempting to play ads");
         
-        [adContext setMoviePlayerController:currentPlayer];
         [self playAds];
     }
 }
 
 - (void)playAds
 {
-    NSLog(@"Playing ads");
+    NSLog(@"[DEBUG] Playing ads");
     
-    NSArray *temporalAdSlots = [adContext temporalSlots];
-    
-    for(id<FWSlot> slot in temporalAdSlots) {
-        if( [slot timePositionClass] == FW_TIME_POSITION_CLASS_PREROLL ) {        
-            [slot play];
-        }
-    }
+    ENSURE_UI_THREAD_0_ARGS;
 }
-
-- (UIViewController *)childViewController;
-{
-	return nil;
-}
-
 
 @end

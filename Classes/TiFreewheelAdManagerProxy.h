@@ -6,7 +6,7 @@
 #import "FWPlayerCommon.h"
 
 @interface TiFreewheelAdManagerProxy : TiProxy <CLLocationManagerDelegate> {
-    TiProxy *proxy;
+    TiProxy *proxy; // proxy that is returned
     NSDictionary *managerProperties;
     CLLocationManager *locationManager;
     NSString *networkId;
@@ -14,7 +14,9 @@
     NSString *currentSiteSection;
     NSString *currentVideoId;
     NSString *currentProfile;
-    MPMoviePlayerController *currentPlayer;
+    NSURL *currentContentUrl; // video content url used after slots are finished
+    MPMoviePlayerController *currentPlayer; // video player that is rendering content
+    TiViewProxy *currentBase; // used to attach FW views
     id<FWAdManager> adManager;
     id<FWContext> adContext;
 }

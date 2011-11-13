@@ -73,7 +73,9 @@
 {    
     ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
 	ENSURE_UI_THREAD_1_ARG(args);
-    
+        
+    currentContentUrl = [args objectForKey:@"contentUrl"];
+    currentBase = [args objectForKey:@"base"];
     TiMediaVideoPlayerProxy *videoPlayer = [args objectForKey:@"player"];
     currentSiteSection = [args objectForKey:@"siteSection"];
     currentVideoId = [args objectForKey:@"videoId"];
@@ -95,14 +97,18 @@
 - (void)createAdContext
 {        
     adContext = [adManager newContext];
-    
+        
     WARN_IF_BACKGROUND_THREAD_OBJ;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAdRequestComplete:) name:FW_NOTIFICATION_REQUEST_COMPLETE object:adContext];
+    
+    WARN_IF_BACKGROUND_THREAD_OBJ;
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAdSlotEnded:) name:FW_NOTIFICATION_SLOT_ENDED object:adContext];
     
     [adContext setProfile:currentProfile :nil :nil :nil];
     [adContext setSiteSection:currentSiteSection :0 :[networkId longLongValue] :FW_ID_TYPE_CUSTOM :0];		
 	[adContext setVideoAsset:currentVideoId :160 :nil :true :0 :0 :FW_ID_TYPE_CUSTOM :35437170 :FW_VIDEO_ASSET_DURATION_TYPE_EXACT];
-	
+    
+    [adContext setVideoDisplayBase:[currentBase view]];
     [adContext setMoviePlayerController:currentPlayer];
     
     NSLog(@"[DEBUG] Created ad context and submitting request");
@@ -140,9 +146,28 @@
     } else {
         NSLog(@"[DEBUG] Ad response looks good");
         NSLog(@"[DEBUG] Setting MP controller and attempting to play ads");
+
+        WARN_IF_BACKGROUND_THREAD_OBJ;
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAdSlotStarted:) name:FW_NOTIFICATION_SLOT_STARTED object:adContext];
         
         [self playAds];
     }
+}
+
+- (void)onAdSlotStarted:(NSNotification *)notification
+{
+    if ([self _hasListeners:@"onslotstarted"]) {
+        [self fireEvent:@"onslotstarted" withObject:[notification userInfo]];
+    }
+}
+
+- (void)onAdSlotEnded:(NSNotification *)notification
+{
+    if ([self _hasListeners:@"onslotended"]) {
+        [self fireEvent:@"onslotended" withObject:[notification userInfo]];
+    }
+    
+    [currentPlayer play];
 }
 
 - (void)playAds
@@ -150,6 +175,13 @@
     NSLog(@"[DEBUG] Playing ads");
     
     ENSURE_UI_THREAD_0_ARGS;
+    
+    for (id<FWSlot> iter in [adContext temporalSlots]) {
+		if ([iter timePositionClass] == FW_TIME_POSITION_CLASS_PREROLL) {
+			[iter play];
+			return;
+		}
+	}
 }
 
 @end

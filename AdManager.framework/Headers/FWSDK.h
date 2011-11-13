@@ -3,7 +3,7 @@
  * 
  * The FreeWheel AdManager Cocoa Touch SDK is a static library for integrating your cocoa touch applications with FreeWheel ad services.
  *
- * The SDK supports iOS 3.0 ~ 4.2 running on iPhone, iPod Touch and iPad. It is a universal binary bundle with armv6, armv7 and i386 architectures. 
+ * The SDK supports iOS 3.0 ~ 4.3 running on iPhone, iPod Touch and iPad. It is a universal binary bundle with armv6, armv7 and i386 architectures. 
  *
  *
  * To use the SDK, 
@@ -11,7 +11,6 @@
  *	- Add libxml2.dylib, UIKit.framework, CoreGraphics.framework, QuartzCore.framework, MediaPlayer.framework, CoreLocation.framework frameworks 
  *	to your project (ctrl+click "Frameworks" group, Add -> Existing Frameworks).
  *	- Add AdManager.framework to your project (ctrl+click "Frameworks" group, Add -> Existing Frameworks -> Add Other, select AdManager.framework).
- *	- Add AdManager.framework/Resources/*.png to your project (ctrl+click "Resources" group, Add -> Existing Files ->, select *.png).
  *	- Add "#import <AdManager/FWSDK.h>" in your code.
  *
  * (Optional) To use the iAd renderer (iOS >= 4.0),

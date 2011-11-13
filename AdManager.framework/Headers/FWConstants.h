@@ -12,6 +12,8 @@
 #define FW_PRIVATE_EXTERN   __private_extern__
 #endif
 
+#endif
+
 typedef enum {
 	FW_LOG_LEVEL_QUIET						=	0,
 	FW_LOG_LEVEL_INFO
@@ -73,8 +75,6 @@ typedef enum {
  * Enumeration of time position classes
  */
 typedef enum {
-	/** Time position class type: unknown */
-	FW_TIME_POSITION_CLASS_UNKNOWN				=	0,	
 	/** Time position class type: preroll */
 	FW_TIME_POSITION_CLASS_PREROLL				=	1,	
 	/** Time position class type: midroll */
@@ -103,16 +103,18 @@ typedef enum {
  * Enumeration of parameter level
  */
 typedef enum {
-	/** global level param, lowest priority */
-	FW_PARAMETER_LEVEL_GLOBAL					=	0,	
+	/** profile level param */
+	FW_PARAMETER_LEVEL_PROFILE					=	0,	
+	/** global level param */
+	FW_PARAMETER_LEVEL_GLOBAL					=	1,	
 	/** slot level param */
-	FW_PARAMETER_LEVEL_SLOT						=	1,
+	FW_PARAMETER_LEVEL_SLOT						=	2,
 	/** creative level param */
-	FW_PARAMETER_LEVEL_CREATIVE					=	2,
+	FW_PARAMETER_LEVEL_CREATIVE					=	3,
 	/** rendition level param */
-	FW_PARAMETER_LEVEL_RENDITION				=	3,
+	FW_PARAMETER_LEVEL_RENDITION				=	4,
 	/** override level param, highest priority */
-	FW_PARAMETER_LEVEL_OVERRIDE					=	4
+	FW_PARAMETER_LEVEL_OVERRIDE					=	5
 } FWParameterLevel;
 
 /**
@@ -153,20 +155,54 @@ typedef enum {
 	FW_VIDEO_ASSET_DURATION_TYPE_VARIABLE			=	2
 } FWVideoAssetDurationType;
 
-/** AdManager publishes notification of this topic after ad request completed */
+/** 
+ *	AdManager publishes notification of this topic after ad request completed with info:
+ *	FW_INFO_KEY_ERROR		-	a NSArray of NSError, optional
+ */
 FW_EXTERN NSString *const FW_NOTIFICATION_REQUEST_COMPLETE;
 
-/** AdManager publishes notification of this topic before slot started */
+/** 
+ *	AdManager publishes notification of this topic before slot started with info:
+ *	FW_INFO_KEY_CUSTOM_ID	-	slot custom id
+ */
 FW_EXTERN NSString *const FW_NOTIFICATION_SLOT_STARTED;
 
-/** AdManager publishes notification of this topic after slot ended */
+/** 
+ *	AdManager publishes notification of this topic after slot ended with info:
+ *	FW_INFO_KEY_CUSTOM_ID	-	slot custom id
+ */
 FW_EXTERN NSString *const FW_NOTIFICATION_SLOT_ENDED; 
 
-/** AdManager publishes notification of this topic when in-app view opened */
+/** 
+ *	AdManager publishes notification of this topic when in-app view opened 
+ */
 FW_EXTERN NSString *const FW_NOTIFICATION_IN_APP_VIEW_OPEN;
+//RDK only
+//FW_INFO_KEY_CUSTOM_ID		-	slot
+//@"url"					-	url
+//@"adInstance"				-	ad
 
-/** AdManager publishes notification of this topic when in-app view closed */
+/** 
+ *	AdManager publishes notification of this topic when in-app view closed 
+ */
 FW_EXTERN NSString *const FW_NOTIFICATION_IN_APP_VIEW_CLOSE;
+/** 
+ *	AdManager publishes notification of this topic when in-app view will open media document 
+ */
+FW_EXTERN NSString *const FW_NOTIFICATION_IN_APP_VIEW_WILL_OPEN_MEDIA_DOCUMENT;
+//RDK only
+
+/** 
+ *	AdManager publishes notification of this topic when ad needs to pause the main content video
+ *	FW_INFO_KEY_CUSTOM_ID		-	slot
+ */
+FW_EXTERN NSString *const FW_NOTIFICATION_CONTENT_PAUSE_REQUEST;
+
+/** 
+ *	AdManager publishes notification of this topic when ad needs to resume the main content video
+ *	FW_INFO_KEY_CUSTOM_ID		-	slot
+ */
+FW_EXTERN NSString *const FW_NOTIFICATION_CONTENT_RESUME_REQUEST;
 
 /**
  * Predefined ad unit: preroll
@@ -175,6 +211,8 @@ FW_EXTERN NSString *const FW_NOTIFICATION_IN_APP_VIEW_CLOSE;
  *	- FW_ADUNIT_MIDROLL
  *	- FW_ADUNIT_POSTROLL
  *	- FW_ADUNIT_OVERLAY
+ *  - FW_ADUNIT_STREAM_PREROLL
+ *  - FW_ADUNIT_STREAM_POSTROLL
  */
 FW_EXTERN NSString *const FW_ADUNIT_PREROLL; 
 
@@ -185,6 +223,8 @@ FW_EXTERN NSString *const FW_ADUNIT_PREROLL;
  *	- FW_ADUNIT_PREROLL
  *	- FW_ADUNIT_POSTROLL
  *	- FW_ADUNIT_OVERLAY
+ *  - FW_ADUNIT_STREAM_PREROLL
+ *  - FW_ADUNIT_STREAM_POSTROLL
  */
 FW_EXTERN NSString *const FW_ADUNIT_MIDROLL; 
 
@@ -195,6 +235,8 @@ FW_EXTERN NSString *const FW_ADUNIT_MIDROLL;
  *	- FW_ADUNIT_PREROLL
  *	- FW_ADUNIT_MIDROLL
  *	- FW_ADUNIT_OVERLAY
+ *  - FW_ADUNIT_STREAM_PREROLL
+ *  - FW_ADUNIT_STREAM_POSTROLL
  */
 FW_EXTERN NSString *const FW_ADUNIT_POSTROLL; 
 
@@ -205,6 +247,8 @@ FW_EXTERN NSString *const FW_ADUNIT_POSTROLL;
  *	- FW_ADUNIT_PREROLL
  *	- FW_ADUNIT_MIDROLL
  *	- FW_ADUNIT_POSTROLL
+ *  - FW_ADUNIT_STREAM_PREROLL
+ *  - FW_ADUNIT_STREAM_POSTROLL
  */
 FW_EXTERN NSString *const FW_ADUNIT_OVERLAY;
 
@@ -212,12 +256,11 @@ FW_EXTERN NSString *const FW_ADUNIT_OVERLAY;
  *	Predefined ad unit: preroll of a STREAM
  *	
  *	See Also:
- *		-    <IConstants.ADUNIT_STREAM_POSTROLL>
- *		-    <IConstants.ADUNIT_PREROLL>
- *		-    <IConstants.ADUNIT_MIDROLL>
- *		-    <IConstants.ADUNIT_POSTROLL>
- *		-    <IConstants.ADUNIT_OVERLAY>
- *		-    <IConstants.ADUNIT_UNKNOWN>
+ *	- FW_ADUNIT_PREROLL
+ *	- FW_ADUNIT_MIDROLL
+ *	- FW_ADUNIT_POSTROLL
+ *	- FW_ADUNIT_OVERLAY
+ *  - FW_ADUNIT_STREAM_POSTROLL
  */
 FW_EXTERN NSString *const FW_ADUNIT_STREAM_PREROLL;
 
@@ -225,11 +268,11 @@ FW_EXTERN NSString *const FW_ADUNIT_STREAM_PREROLL;
  *	Predefined ad unit: postroll of a STREAM
  *	
  *	See Also:
- *		-    <IConstants.ADUNIT_STREAM_PREROLL>
- *		-    <IConstants.ADUNIT_MIDROLL>
- *		-    <IConstants.ADUNIT_POSTROLL>
- *		-    <IConstants.ADUNIT_OVERLAY>
- *		-    <IConstants.ADUNIT_UNKNOWN>
+ *	- FW_ADUNIT_PREROLL
+ *	- FW_ADUNIT_MIDROLL
+ *	- FW_ADUNIT_POSTROLL
+ *	- FW_ADUNIT_OVERLAY
+ *  - FW_ADUNIT_STREAM_PREROLL
  */
 FW_EXTERN NSString *const FW_ADUNIT_STREAM_POSTROLL;
 
@@ -300,6 +343,10 @@ FW_EXTERN NSString *const FW_CAPABILITY_SYNC_MULTI_REQUESTS;
  *	      So make sure to turn it off when exclusivity scope has been reset (the request has been submit).
  */
 FW_EXTERN NSString *const FW_CAPABILITY_RESET_EXCLUSIVITY;
+
+FW_EXTERN NSString *const FW_CAPABILITY_FALLBACK_ADS;
+
+FW_EXTERN NSString *const FW_CAPABILITY_MULTIPLE_CREATIVE_RENDITIONS;
 
 /**
  *	Event name: slot impression
@@ -437,24 +484,32 @@ FW_EXTERN NSString *const FW_PARAMETER_CLICK_VIEW_WIDTH;
 FW_EXTERN NSString *const FW_PARAMETER_CLICK_VIEW_HEIGHT;
 
 /**
+ *  The key of display ad renderer HTML content click processing enabled parameter. NSString @"YES", @"NO" are valid. Default is @"NO".
+ */
+FW_EXTERN NSString *const FW_PARAMETER_DISPLAY_AD_HTML_CONTENT_CLICK_PROCESSING;
+
+/**
  *  The key of inAppView close button enable delay time parameter, in seconds. Default is 3 secs.
  */
 FW_EXTERN NSString *const FW_PARAMETER_IN_APP_VIEW_LOADING_TIMEOUT;
 
 /**
- *  The key of inAppView backward button parameter. The value of this parameter can be UIImage or a NSString url
+ *  The key of InAppView ToolBar surface render parameter. \n
+ *  The value of the parameter is a string of Html5 which will be injected into the surface web page of the ToolBar .\n
+ *  The following template is suggested to use:\n
+ *  \n
+ *  \<div\>\n
+ *       \<div style=\"\"\>\<img ID=\"<b>FW_IN_APP_VIEW_CONTROL_BAR_BACK_BUTTON</b>\"  src=\"data:image/png;base64,<b><i>PNG_BASE64_STRING</i></b>\" width=\"\" height=\"\"/\>\</div\>\n
+ *       \<div style=\"\"\>\<img ID=\"<b>FW_IN_APP_VIEW_CONTROL_BAR_FORWARD_BUTTON</b>\"  src=\"data:image/png;base64,<b><i>PNG_BASE64_STRING</i></b>\" width=\"\" height=\"\"/\>\</div\>\n
+ *       \<div style=\"\"\>\<img ID=\"<b>FW_IN_APP_VIEW_CONTROL_BAR_CLOSE_BUTTON</b>\"  src=\"data:image/png;base64,<b><i>PNG_BASE64_STRING</i></b>\" width=\"\" height=\"\"/\>\</div\>\n
+ *  \</div\>\n
+ *  \n
+ *  The <b>FW_IN_APP_VIEW_CONTROL_BAR_BACK_BUTTON</b>, <b>FW_IN_APP_VIEW_CONTROL_BAR_FORWARD_BUTTON</b> and <b>FW_IN_APP_VIEW_CONTROL_BAR_CLOSE_BUTTON</b> IDs have to be kept as such for handling event.\n
+ *  The all three <b><i>PNG_BASE64_STRING</i></b>s are replaced one by one with each png's base64 string.\n
+ *  The size of img tag and alignment of div tag have to be set properly, e.g. div style can make the close button right aligned.\n
+ *  All Safari mobile compatible html5 tag used in body tag are supported, e.g. utilizing table tag to manage layout instead of div tag.
  */
-FW_EXTERN NSString *const FW_PARAMETER_IN_APP_VIEW_BACKWARD_BUTTON_SOURCE;
-
-/**
- *  The key of inAppView forward button parameter. The value of this parameter can be UIImage or a NSString url
- */
-FW_EXTERN NSString *const FW_PARAMETER_IN_APP_VIEW_FORWARD_BUTTON_SOURCE;
-
-/**
- *  The key of inAppView close button parameter. The value of this parameter can be UIImage or a NSString url
- */
-FW_EXTERN NSString *const FW_PARAMETER_IN_APP_VIEW_CLOSE_BUTTON_SOURCE;
+FW_EXTERN NSString *const FW_PARAMETER_IN_APP_VIEW_TOOLBAR_SURFACE_RENDER;
 
 /**
  *  The key of inAppView navigation bar background color. The value of this property is a NSString in the range 0 to 0xffffff. Both integer and hexadecimal are accpeted, for example 256, 0xffffff
@@ -465,6 +520,21 @@ FW_EXTERN NSString *const FW_PARAMETER_IN_APP_VIEW_NAVIGATION_BAR_BACKGROUND_COL
  *  The key of inAppView navigation bar alpha parameter. The value of this property is a NSString in the range 0.0 to 1.0, where 0.0 represents totally transparent and 1.0 represents totally opaque. Default is 1.0
  */
 FW_EXTERN NSString *const FW_PARAMETER_IN_APP_VIEW_NAVIGATION_BAR_ALPHA;
+
+/**
+ *  The key of inAppView navigation bar height. The value of this property is a NSString in the range 0% to 100%, comparing to screen height. 
+ */
+FW_EXTERN NSString *const FW_PARAMETER_IN_APP_VIEW_NAVIGATION_BAR_HEIGHT;
+
+/**
+ *  The key of inAppView webview background color. The value of this property is a NSString in the range 0 to 0xffffff. Default is 0xffffff. Both integer and hexadecimal are accpeted, for example 256, 0xffffff
+ */
+FW_EXTERN NSString *const FW_PARAMETER_IN_APP_VIEW_WEB_VIEW_BACKGROUND_COLOR;
+
+/**
+ *  The key of inAppView webview alpha parameter. The value of this property is a NSString in the range 0.0 to 1.0, where 0.0 represents totally transparent and 1.0 represents totally opaque. Default is 1.0
+ */
+FW_EXTERN NSString *const FW_PARAMETER_IN_APP_VIEW_WEB_VIEW_ALPHA;
 
 /**
  *	Parameter key. The value of FW_PARAMETER_VIDEO_AD_SCALING_MODE is one of: 
@@ -480,6 +550,11 @@ FW_EXTERN NSString *const FW_PARAMETER_VIDEO_AD_SCALING_MODE_ASPECT_FILL;
 FW_EXTERN NSString *const FW_PARAMETER_VIDEO_AD_SCALING_MODE_FILL;
 
 /**
+ * The key of using application audio session for video ad renderer. NSString @"YES", @"NO" are valid. Default is @"NO". 
+ */
+FW_EXTERN NSString *const FW_PARAMETER_VIDEO_AD_USE_APPLICATION_AUDIO_SESSION;
+
+/**
  *  The key of countdownTimer display parameter. NSString @"YES", @"NO" are valid. Default is @"NO". This parameter can only be set before the slot play, otherwise no effect
  */
 FW_EXTERN NSString *const FW_PARAMETER_COUNTDOWN_TIMER_DISPLAY;
@@ -492,7 +567,7 @@ FW_EXTERN NSString *const FW_PARAMETER_COUNTDOWN_TIMER_REFRESH_INTERVAL;
 /**
  *  The key of countdownTimer js update callback function name parameter. The value of this parameter is a NSString. Default is "updateTimer". This parameter can only be set before the slot play, otherwise no effect
  *		Notes :
-			The javascript update callback function should be responsible for displaying countdownTimer content. It can recieve two parameters: playheadTime, duration. They are calculated in seconds.
+ The javascript update callback function should be responsible for displaying countdownTimer content. It can recieve two parameters: playheadTime, duration. They are calculated in seconds.
  */
 FW_EXTERN NSString *const FW_PARAMETER_COUNTDOWN_TIMER_UPDATE_CALLBACK;
 
@@ -556,6 +631,21 @@ FW_EXTERN NSString *const FW_PARAMETER_TRANSPARENT_BACKGROUND;
  *  NSString "YES, NO" are valid values. By default, it is NO.
  */
 FW_EXTERN NSString *const FW_PARAMETER_NONTEMPORAL_SLOT_VISIBILITY_AUTO_TRACKING;
+
+/**
+ *  The key of Medialets enable parameter. NSString @"YES", @"NO" are valid. Default is @"NO". This parameter can only be set before FW_NOTIFICATION_REQUEST_COMPLETE event, otherwise no effect
+ */
+FW_EXTERN NSString *const FW_PARAMETER_MEDIALETS_ENABLE;
+
+/**
+ *  The key of Medialets appKey parameter. The value of this property is a NSString. 
+ */
+FW_EXTERN NSString *const FW_PARAMETER_MEDIALETS_APP_KEY;
+
+/**
+ *  Key of FW_NOTIFICATION_REQUEST_COMPLETE notification's userInfo dictionary.
+ */
+FW_EXTERN NSString *const FW_INFO_KEY_ERROR;
 
 /**
  *  Key of FW_NOTIFICATION_SLOT_STARTED & FW_NOTIFICATION_SLOT_ENDED notification's userInfo dictionary. Its value is slot's custom id.
@@ -633,7 +723,7 @@ FW_EXTERN NSString *const FW_ERROR_NO_AD_AVAILABLE;
 /**
  *  Value for key FW_INFO_KEY_ERROR_CODE
  */
-FW_EXTERN NSString *const FW_ERROR_PARSE_ERROR;
+FW_EXTERN NSString *const FW_ERROR_PARSE;
 
 /**
  *  Value for key FW_INFO_KEY_ERROR_CODE
@@ -643,7 +733,17 @@ FW_EXTERN NSString *const FW_ERROR_INVALID_VALUE;
 /**
  *  Value for key FW_INFO_KEY_ERROR_CODE
  */
+FW_EXTERN NSString *const FW_ERROR_INVALID_SLOT;
+
+/**
+ *  Value for key FW_INFO_KEY_ERROR_CODE
+ */
 FW_EXTERN NSString *const FW_ERROR_NO_RENDERER;
+
+/**
+ *  Value for key FW_INFO_KEY_ERROR_CODE
+ */
+FW_EXTERN NSString *const FW_ERROR_IN_APP_VIEW;
 
 /**
  *  Key of the details dictionary passed to -[FWRendererController processEvent::]. Its value is the custom event name to be processed.
@@ -653,13 +753,21 @@ FW_EXTERN NSString *const FW_INFO_KEY_CUSTOM_EVENT_NAME;
 /**
  *  Key of the details dictionary passed to -[FWRendererController processEvent::]. Its value is @"YES" or @"NO".
  */
-FW_EXTERN NSString *const FW_INFO_KEY_SHOW_BROWSER; 
+FW_EXTERN NSString *const FW_INFO_KEY_SHOW_BROWSER;
 
+/**
+ *  Key of FW_NOTIFICATION_VIDEO_DISPLAY_BASE_CHANGED & FW_NOTIFICATION_VIDEO_DISPLAY_BASE_FRAME_CHANGED notification's userInfo dictionary. Its value is the videoDisplayBase object set by API [FWContext setVideoDisplayBase:]. 
+ */
+FW_EXTERN NSString *const FW_INFO_KEY_VIDEO_DISPLAY_BASE;
 
-/** AdManager publishes notification of this topic when AdMob renderer will present full screen modal */
+/** 
+ *	AdManager publishes notification of this topic when AdMob renderer will present full screen modal 
+ */
 FW_EXTERN NSString *const FW_NOTIFICATION_ADMOB_PRESENT_FULL_SCREEN_MODAL;
 
-/** AdManager publishes notification of this topic when AdMob renderer will dismiss full screen modal */
+/** 
+ *	AdManager publishes notification of this topic when AdMob renderer will dismiss full screen modal 
+ */
 FW_EXTERN NSString *const FW_NOTIFICATION_ADMOB_DISMISS_FULL_SCREEN_MODAL;
 
 /**
@@ -667,6 +775,9 @@ FW_EXTERN NSString *const FW_NOTIFICATION_ADMOB_DISMISS_FULL_SCREEN_MODAL;
  *
  * See Also:
  *  - FW_ADUNIT_ADMOB_INTERSTITIAL_SCREEN_CHANGE
+ *	- FW_ADUNIT_ADMOB_INTERSTITIAL_PREROLL
+ *	- FW_ADUNIT_ADMOB_INTERSTITIAL_POSTROLL
+ *	- FW_ADUNIT_ADMOB_INTERSTITIAL_OTHER
  */
 FW_EXTERN NSString *const FW_ADUNIT_ADMOB_INTERSTITIAL_APP_OPEN;
 
@@ -675,26 +786,62 @@ FW_EXTERN NSString *const FW_ADUNIT_ADMOB_INTERSTITIAL_APP_OPEN;
  *
  * See Also:
  *  - FW_ADUNIT_ADMOB_INTERSTITIAL_APP_OPEN
+ *	- FW_ADUNIT_ADMOB_INTERSTITIAL_PREROLL
+ *	- FW_ADUNIT_ADMOB_INTERSTITIAL_POSTROLL
+ *	- FW_ADUNIT_ADMOB_INTERSTITIAL_OTHER
  */
 FW_EXTERN NSString *const FW_ADUNIT_ADMOB_INTERSTITIAL_SCREEN_CHANGE;
 
 /**
- *  Specify the postal code of the user for targeting passthrough to the AdMob component.
+ * Ad unit for adMob interstitial ad EventPreroll
+ *
+ * See Also:
+ *  - FW_ADUNIT_ADMOB_INTERSTITIAL_APP_OPEN
+ *	- FW_ADUNIT_ADMOB_INTERSTITIAL_SCREEN_CHANGE
+ *	- FW_ADUNIT_ADMOB_INTERSTITIAL_POSTROLL
+ *	- FW_ADUNIT_ADMOB_INTERSTITIAL_OTHER
+ */
+FW_EXTERN NSString *const FW_ADUNIT_ADMOB_INTERSTITIAL_PREROLL;
+
+/**
+ * Ad unit for adMob interstitial ad EventPostroll
+ *
+ * See Also:
+ *  - FW_ADUNIT_ADMOB_INTERSTITIAL_APP_OPEN
+ *	- FW_ADUNIT_ADMOB_INTERSTITIAL_SCREEN_CHANGE
+ *	- FW_ADUNIT_ADMOB_INTERSTITIAL_PREROLL
+ *	- FW_ADUNIT_ADMOB_INTERSTITIAL_OTHER
+ */
+FW_EXTERN NSString *const FW_ADUNIT_ADMOB_INTERSTITIAL_POSTROLL;
+
+/**
+ * Ad unit for adMob interstitial ad EventOther
+ *
+ * See Also:
+ *  - FW_ADUNIT_ADMOB_INTERSTITIAL_APP_OPEN
+ *	- FW_ADUNIT_ADMOB_INTERSTITIAL_SCREEN_CHANGE
+ *	- FW_ADUNIT_ADMOB_INTERSTITIAL_PREROLL
+ *	- FW_ADUNIT_ADMOB_INTERSTITIAL_POSTROLL
+ */
+FW_EXTERN NSString *const FW_ADUNIT_ADMOB_INTERSTITIAL_OTHER;
+
+/**
+ *  Specify the postal code of the user for targeting passthrough to the AdMob/Rhythm NewMedia component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_POSTAL_CODE;
 
 /**
- *  Specify the area code of the user's phone for targeting passthrough to the AdMob componenet.
+ *  Specify the area code of the user's phone for targeting passthrough to the AdMob/Rhythm NewMedia componenet.
  */
 FW_EXTERN NSString *const FW_PARAMETER_AREA_CODE;
 
 /**
- *  Specify the user’s date of birth for targeting passthrough to the AdMob component.
+ *  Specify the user’s date of birth for targeting passthrough to the AdMob/Rhythm NewMedia component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_DATE_OF_BIRTH;
 
 /**
- *  Specify the user’s gender for targeting passthrough to the AdMob componenet.
+ *  Specify the user’s gender for targeting passthrough to the AdMob/Rhythm NewMedia componenet.
  */
 FW_EXTERN NSString *const FW_PARAMETER_GENDER;
 
@@ -715,4 +862,27 @@ FW_EXTERN NSString *const FW_PARAMETER_SEARCH_STRING;
  */
 FW_EXTERN NSString *const FW_PARAMETER_ADMOB_INTERSTITIAL_TYPE;
 
-#endif
+/**
+ *  Specify whether the AdMob renderer to use test mode
+ *
+ */
+FW_EXTERN NSString *const FW_PARAMETER_ADMOB_TEST_MODE;
+
+/**
+ *  Specify the click actions when test AdMob Renderer
+ *
+ */
+FW_EXTERN NSString *const FW_PARAMETER_ADMOB_TEST_ACTION;
+
+/**
+ *	Specify the whether AdManager handle temporal ad click. value should 'true'/'false' or 'on'/'off' or 'yes'/'no' 
+ *	if the value is set to no/false/off, app should handle the ad click by a UIView.
+ */
+FW_EXTERN NSString *const FW_PARAMETER_CLICK_DETECTION;
+
+/**
+ *  The key of available desired bitrate limitation.\n 
+ *  The value of this property is a NSString with positive decimal floating point number.The default value of the key is \@\"1000.0\".\n
+ *  The value is used to select best creative rendition.\n
+ */
+FW_EXTERN NSString *const FW_PARAMETER_DESIRED_BITRATE;

@@ -13,6 +13,7 @@
     NSString *serverUrl;
     NSString *currentSiteSection;
     NSString *currentVideoId;
+    NSString *currentFallbackId;
     NSString *currentProfile;
     NSURL *currentContentUrl; // video content url used after slots are finished
     MPMoviePlayerController *currentPlayer; // video player that is rendering content
@@ -27,6 +28,6 @@
 
 - (void)createAdContext;
 - (void)onAdRequestComplete:(NSNotification *)notification;
-- (void)playAds;
+- (void)playAds:(id)args; // time
 
 @end

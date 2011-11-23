@@ -13,15 +13,15 @@ window.add(label);
 window.open();
 
 // TODO: write your module tests here
-var freewheel = require('ti.freewheel');
-Ti.API.info("module is => " + freewheel);
+var FreeWheel = require('ti.freewheel');
+Ti.API.info("module is => " + FreeWheel);
 
-label.text = freewheel.example();
+label.text = FreeWheel.example();
 
-Ti.API.info("module exampleProp is => " + freewheel.exampleProp);
-freewheel.exampleProp = "This is a test value";
+Ti.API.info("module exampleProp is => " + FreeWheel.exampleProp);
+FreeWheel.exampleProp = "This is a test value";
 
 if (Ti.Platform.name == "android") {
-	var proxy = freewheel.createExample({message: "Creating an example Proxy"});
+	var proxy = FreeWheel.createExample({message: "Creating an example Proxy"});
 	proxy.printMessage("Hello world!");
 }

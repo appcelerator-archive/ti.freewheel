@@ -77,6 +77,7 @@
     currentContentUrl = [args objectForKey:@"contentUrl"];
     currentFallbackId = [args objectForKey:@"fallbackId"];
     currentBase = [args objectForKey:@"base"];
+    currentCompanionBase = [args objectForKey:@"companionBase"];
     TiMediaVideoPlayerProxy *videoPlayer = [args objectForKey:@"player"];
     currentSiteSection = [args objectForKey:@"siteSection"];
     currentVideoId = [args objectForKey:@"videoId"];
@@ -101,18 +102,18 @@
         
     WARN_IF_BACKGROUND_THREAD_OBJ;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAdRequestComplete:) name:FW_NOTIFICATION_REQUEST_COMPLETE object:adContext];
-    
-    WARN_IF_BACKGROUND_THREAD_OBJ;
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAdSlotEnded:) name:FW_NOTIFICATION_SLOT_ENDED object:adContext];
-    
+        
     [adContext setProfile:currentProfile :nil :nil :nil];
     [adContext setSiteSection:currentSiteSection :0 :[networkId longLongValue] :FW_ID_TYPE_CUSTOM :0];		
 	[adContext setVideoAsset:currentVideoId :0 :nil :true :0 :0 :FW_ID_TYPE_CUSTOM :[currentFallbackId longLongValue] :FW_VIDEO_ASSET_DURATION_TYPE_EXACT];
     [adContext setParameter:FW_PARAMETER_COUNTDOWN_TIMER_DISPLAY withValue:@"YES" forLevel:FW_PARAMETER_LEVEL_OVERRIDE];
-    [adContext setParameter:FW_PARAMETER_COUNTDOWN_TIMER_POSITION withValue:@"top" forLevel:FW_PARAMETER_LEVEL_GLOBAL];
-    [adContext setParameter:FW_PARAMETER_COUNTDOWN_TIMER_BG_COLOR withValue:@"0x000000" forLevel:FW_PARAMETER_LEVEL_GLOBAL];
-    [adContext setParameter:FW_PARAMETER_COUNTDOWN_TIMER_ALPHA withValue:@"1.0" forLevel:FW_PARAMETER_LEVEL_GLOBAL];
-    [adContext setParameter:FW_PARAMETER_COUNTDOWN_TIMER_TEXT_SIZE withValue:@"small" forLevel:FW_PARAMETER_LEVEL_GLOBAL];
+    [adContext setParameter:FW_PARAMETER_COUNTDOWN_TIMER_POSITION withValue:@"top" forLevel:FW_PARAMETER_LEVEL_OVERRIDE];
+    [adContext setParameter:FW_PARAMETER_COUNTDOWN_TIMER_BG_COLOR withValue:@"0x000000" forLevel:FW_PARAMETER_LEVEL_OVERRIDE];
+    [adContext setParameter:FW_PARAMETER_COUNTDOWN_TIMER_ALPHA withValue:@"1.0" forLevel:FW_PARAMETER_LEVEL_OVERRIDE];
+    [adContext setParameter:FW_PARAMETER_COUNTDOWN_TIMER_TEXT_SIZE withValue:@"small" forLevel:FW_PARAMETER_LEVEL_OVERRIDE];
+    [adContext setParameter:FW_PARAMETER_CLICK_DETECTION withValue:@"NO" forLevel:FW_PARAMETER_LEVEL_OVERRIDE];
+    
+    [adContext addVideoPlayerNonTemporalSlot:[NSString stringWithFormat:@"%c%c%c", (char)(65 + (arc4random() % 25)), (char)(48 + (arc4random() % 9)), (char)(65 + (arc4random() % 25))] :nil :300 :50 :nil :YES :FW_SLOT_OPTION_INITIAL_AD_STAND_ALONE :nil :nil :nil];
     
     [adContext setVideoDisplayBase:[currentBase view]];
     [adContext setMoviePlayerController:currentPlayer];
@@ -151,8 +152,11 @@
 
         WARN_IF_BACKGROUND_THREAD_OBJ;
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAdSlotStarted:) name:FW_NOTIFICATION_SLOT_STARTED object:adContext];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAdSlotEnded:) name:FW_NOTIFICATION_SLOT_ENDED object:adContext];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onContentVideoPauseRequest:) name:FW_NOTIFICATION_CONTENT_PAUSE_REQUEST object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onContentVideoResumeRequest:) name:FW_NOTIFICATION_CONTENT_RESUME_REQUEST object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAdOpen:) name:FW_NOTIFICATION_IN_APP_VIEW_OPEN object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameChanged:) name:FW_NOTIFICATION_VIDEO_DISPLAY_BASE_FRAME_CHANGED object:nil];
         
         NSMutableArray *prerollSlots = [[NSMutableArray alloc] init];
         NSMutableArray *midrollSlots = [[NSMutableArray alloc] init];
@@ -203,6 +207,23 @@
     }
 }
 
+- (void)frameChanged:(NSNotification*)notification
+{
+    NSLog(@"[ERROR] FRAME CHANGED");
+    
+    for (UIView *subview in [[currentBase view] subviews])
+    {
+        NSLog(@"[ERROR] %@", subview);
+    }
+}
+
+- (void)onAdOpen:(NSNotification*)notification
+{
+    if ([self _hasListeners:@"onadopen"]) {
+        [self fireEvent:@"onadopen" withObject:[notification userInfo]];
+    }
+}
+
 - (void)onContentVideoPauseRequest:(NSNotification*)notification
 {
     NSLog(@"[DEBUG] Pause request sent from AdManager");
@@ -222,20 +243,24 @@
 - (void)onAdSlotStarted:(NSNotification *)notification
 {
     NSMutableArray *ads = [[NSMutableArray alloc] init];
-    
+
     for (id<FWAdInstance> instance in [[adContext getSlotByCustomId:[[notification userInfo] objectForKey:FW_INFO_KEY_CUSTOM_ID]] adInstances]) {
         [ads addObject:[[[NSDictionary alloc] initWithObjectsAndKeys:
                          [NSNumber numberWithLongLong:[instance creativeId]], @"creativeId",
-                         // [[[instance primaryCreativeRendition] primaryCreativeRenditionAsset] content], @"asset",
                          nil] autorelease]];
+        
+        [[currentCompanionBase view] addSubview:[[adContext getSlotByCustomId:[[[instance companionSlots] objectAtIndex:0] customId]] slotBase]]; // add companion view
+        
         NSLog(@"[DEBUG] Ad Instance: %@", instance);
     }
-        
+            
     if ([self _hasListeners:@"onslotstarted"]) {
         [self fireEvent:@"onslotstarted" withObject:[[[NSDictionary alloc] initWithObjectsAndKeys:
                                                      ads, @"ads",
-                                                     nil] autorelease]];      
+                                                     nil] autorelease]];   
     }
+    
+    NSLog(@"[DEBUG] Companion Base Subview Count: %d", [[[currentCompanionBase view] subviews] count]); // just checking to see if the slotBase is being removed correctly
     
     [ads release];
 }
@@ -262,6 +287,8 @@
 			return;
 		}
 	}
+    
+    
 }
 
 @end

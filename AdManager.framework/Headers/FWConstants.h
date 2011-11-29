@@ -632,6 +632,8 @@ FW_EXTERN NSString *const FW_PARAMETER_TRANSPARENT_BACKGROUND;
  */
 FW_EXTERN NSString *const FW_PARAMETER_NONTEMPORAL_SLOT_VISIBILITY_AUTO_TRACKING;
 
+FW_EXTERN NSString *const FW_NOTIFICATION_VIDEO_DISPLAY_BASE_FRAME_CHANGED;
+
 /**
  *  The key of Medialets enable parameter. NSString @"YES", @"NO" are valid. Default is @"NO". This parameter can only be set before FW_NOTIFICATION_REQUEST_COMPLETE event, otherwise no effect
  */

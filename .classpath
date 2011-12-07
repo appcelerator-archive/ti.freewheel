@@ -7,7 +7,9 @@
 	<classpathentry kind="lib" path="/usr/android-sdk/add-ons/addon_google_apis_google_inc_7/libs/maps.jar"/>
 	<classpathentry kind="lib" path="/Library/Application Support/Titanium/mobilesdk/osx/1.7.2/android/titanium.jar"/>
 	<classpathentry kind="lib" path="/Library/Application Support/Titanium/mobilesdk/osx/1.7.2/android/modules/titanium-ui.jar"/>
+	<classpathentry kind="lib" path="/Library/Application Support/Titanium/mobilesdk/osx/1.7.2/android/modules/titanium-media.jar"/>
 	<classpathentry kind="lib" path="/Library/Application Support/Titanium/mobilesdk/osx/1.7.2/android/js.jar"/>
-	<classpathentry kind="lib" path="ref/*"/>
+	<classpathentry kind="lib" path="lib/AdManager.jar"/>
+	<classpathentry kind="lib" path="lib/FWAdManagerLoader.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

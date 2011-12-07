@@ -12,5 +12,5 @@ copyright: Copyright (c) 2010-2011 by Appcelerator, Inc.
 name: doubleclick
 moduleid: ti.doubleclick
 guid: e35390af-1aa9-4416-ba22-88a3b1a50108
-platform: iphone
+platform: android
 minsdk: 1.6.0

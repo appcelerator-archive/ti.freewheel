@@ -14,11 +14,9 @@ import java.util.Iterator;
 import java.util.Random;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
@@ -72,8 +70,8 @@ public class AdManagerProxy extends KrollProxy {
 	private String currentProfile;
 
 	// Constructor
-	public AdManagerProxy(TiContext tiContext) {
-		super(tiContext);
+	public AdManagerProxy() {
+		super();
 	}
 
 	// Handle creation options
@@ -84,7 +82,7 @@ public class AdManagerProxy extends KrollProxy {
 		networkId = options.getInt("networkId");
 		serverUrl = options.getString("serverUrl");
 
-		adManagerLoader = AdManagerLoaderFactory.getInstance(context.getActivity());
+		adManagerLoader = AdManagerLoaderFactory.getInstance(getActivity());
 
 		adManagerLoader.loadAdManager(ADMANAGER_URL, new Handler() {
 
@@ -127,13 +125,13 @@ public class AdManagerProxy extends KrollProxy {
 	}
 
 	private Location getLocationInfo() {
-		LocationManager locationManager = (LocationManager) context.getActivity().getSystemService(Context.LOCATION_SERVICE);
+		LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 		String bestProvider = locationManager.getBestProvider(new Criteria(), false);
 		return locationManager.getLastKnownLocation(bestProvider);
 	}
 
 	@Kroll.method(runOnUiThread = true)
-	public void setAdContext(KrollInvocation invocation, KrollDict args) {
+	public void setAdContext(KrollDict args) {
 		currentContentUrl = args.getString("contentUrl");
 		currentFallbackId = args.getInt("fallbackId");
 
@@ -153,13 +151,13 @@ public class AdManagerProxy extends KrollProxy {
 			Log.d(LCAT, "Set current player and created ad context");
 		}
 
-		createAdContext(invocation);
+		createAdContext();
 	}
 
-	private void createAdContext(KrollInvocation invocation) {
+	private void createAdContext() {
 
 		adContext = adManager.newContext();
-		adContext.setActivity(invocation.getActivity());
+		adContext.setActivity(getActivity());
 
 		final IConstants adConstants = adContext.getConstants();
 
@@ -247,7 +245,7 @@ public class AdManagerProxy extends KrollProxy {
 	}
 
 	@Kroll.method(runOnUiThread = true)
-	public void playAds(KrollInvocation invocation, KrollDict args) {
+	public void playAds(KrollDict args) {
 		int time = args.getInt("time");
 
 		currentPlayer.pause();

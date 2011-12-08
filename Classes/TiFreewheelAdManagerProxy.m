@@ -242,6 +242,8 @@
 
 - (void)onAdSlotStarted:(NSNotification *)notification
 {
+    currentPlayer.view.layer.opacity = 0;
+    
     NSMutableArray *ads = [[NSMutableArray alloc] init];
 
     for (id<FWAdInstance> instance in [[adContext getSlotByCustomId:[[notification userInfo] objectForKey:FW_INFO_KEY_CUSTOM_ID]] adInstances]) {
@@ -267,6 +269,8 @@
 
 - (void)onAdSlotEnded:(NSNotification *)notification
 {
+    currentPlayer.view.layer.opacity = 1;
+    
     if ([self _hasListeners:@"onslotended"]) {
         [self fireEvent:@"onslotended" withObject:[notification userInfo]];
     }    

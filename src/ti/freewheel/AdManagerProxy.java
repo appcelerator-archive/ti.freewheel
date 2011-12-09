@@ -20,6 +20,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
+import org.appcelerator.titanium.TiApplication;
 
 import android.app.Activity;
 import android.content.Context;
@@ -157,7 +158,7 @@ public class AdManagerProxy extends KrollProxy {
 	private void createAdContext() {
 
 		adContext = adManager.newContext();
-		adContext.setActivity(getActivity());
+		adContext.setActivity(TiApplication.getAppCurrentActivity());
 
 		final IConstants adConstants = adContext.getConstants();
 

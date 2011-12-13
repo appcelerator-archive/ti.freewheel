@@ -21,6 +21,8 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.kroll.common.AsyncResult;
 
 import android.app.Activity;
 import android.content.Context;
@@ -131,7 +133,7 @@ public class AdManagerProxy extends KrollProxy {
 		return locationManager.getLastKnownLocation(bestProvider);
 	}
 
-	@Kroll.method(runOnUiThread = true)
+	@Kroll.method
 	public void setAdContext(KrollDict args) {
 		currentContentUrl = args.getString("contentUrl");
 		currentFallbackId = args.getInt("fallbackId");
@@ -152,10 +154,49 @@ public class AdManagerProxy extends KrollProxy {
 			Log.d(LCAT, "Set current player and created ad context");
 		}
 
-		createAdContext();
+        if (!TiApplication.isUIThread()) {
+            TiMessenger.sendBlockingMainMessage(handler.obtainMessage(MSG_CREATE_AD_CONTEXT));
+        } else {
+            handleCreateAdContext();
+        }
 	}
 
-	private void createAdContext() {
+	@Kroll.method
+	public void playAds(KrollDict args) {
+		int time = args.getInt("time");
+
+		if (!TiApplication.isUIThread()) {
+		    TiMessenger.sendBlockingMainMessage(handler.obtainMessage(MSG_PLAY_ADS, time, 0));
+		} else {
+		    handlePlayAds(time);
+		}
+	}
+
+	private Handler handler = new Handler(TiMessenger.getMainMessenger().getLooper(), this);
+    private static final int MSG_CREATE_AD_CONTEXT = 50000;
+    private static final int MSG_PLAY_ADS = 50001;
+
+	public boolean handleMessage(Message msg)
+	{
+	    switch (msg.what) {
+	        case MSG_CREATE_AD_CONTEXT: {
+	            AsyncResult result = (AsyncResult) msg.obj;
+	            handleCreateAdContext();
+	            result.setResult(null);
+	            return true;
+	        }
+	        case MSG_PLAY_ADS: {
+	            AsyncResult result = (AsyncResult) msg.obj;
+	            handlePlayAds(msg.arg1);
+	            result.setResult(null);
+	            return true;
+	        }
+	    }
+	    return false;
+	}
+
+	private void handleCreateAdContext()
+	{
 
 		adContext = adManager.newContext();
 		adContext.setActivity(TiApplication.getAppCurrentActivity());
@@ -245,10 +286,9 @@ public class AdManagerProxy extends KrollProxy {
 		adContext.submitRequest(2);
 	}
 
-	@Kroll.method(runOnUiThread = true)
-	public void playAds(KrollDict args) {
-		int time = args.getInt("time");
-
+	@Kroll.method
+	public void handlePlayAds(int time)
+	{
 		currentPlayer.pause();
 
 		ArrayList<ISlot> temporalSlots = adContext.getTemporalSlots();

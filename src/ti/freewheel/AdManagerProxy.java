@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -102,12 +103,12 @@ public class AdManagerProxy extends KrollProxy {
 		});
 	}
 
-	private KrollDict[] loadSlot(int position) {
+	private HashMap[] loadSlot(int position) {
 		ArrayList<ISlot> slots = adContext.getSlotsByTimePositionClass(position);
-		KrollDict[] retVal = new KrollDict[slots.size()];
+		HashMap[] retVal = new HashMap[slots.size()];
 		for (int i = 0; i < slots.size(); i++) {
 			ISlot slot = slots.get(i);
-			retVal[i] = new KrollDict();
+			retVal[i] = new HashMap();
 			retVal[i].put("time", slot.getTimePosition());
 			retVal[i].put("customId", slot.getCustomId());
 		}
@@ -134,21 +135,22 @@ public class AdManagerProxy extends KrollProxy {
 	}
 
 	@Kroll.method
-	public void setAdContext(KrollDict args) {
-		currentContentUrl = args.getString("contentUrl");
-		currentFallbackId = args.getInt("fallbackId");
+	public void setAdContext(HashMap args) {
+	    KrollDict argsDict = new KrollDict(args);
+		currentContentUrl = argsDict.getString("contentUrl");
+		currentFallbackId = argsDict.getInt("fallbackId");
 
 		currentBase = (TiViewProxy) args.get("base");
 		currentCompanionBase = (TiViewProxy) args.get("companionBase");
 
 		currentPlayer = (VideoPlayerProxy) args.get("player");
 
-		currentSiteSection = args.getString("siteSection");
-		currentVideoId = args.getString("videoId");
-		currentProfile = args.getString("profile");
+		currentSiteSection = argsDict.getString("siteSection");
+		currentVideoId = argsDict.getString("videoId");
+		currentProfile = argsDict.getString("profile");
 
 		if (DBG) {
-			for (String key : args.keySet()) {
+			for (String key : argsDict.keySet()) {
 				Log.d(LCAT, key + " is set on " + args.get(key));
 			}
 			Log.d(LCAT, "Set current player and created ad context");
@@ -162,8 +164,9 @@ public class AdManagerProxy extends KrollProxy {
 	}
 
 	@Kroll.method
-	public void playAds(KrollDict args) {
-		int time = args.getInt("time");
+	public void playAds(HashMap args) {
+        KrollDict argsDict = new KrollDict(args);
+		int time = argsDict.getInt("time");
 
 		if (!TiApplication.isUIThread()) {
 		    TiMessenger.sendBlockingMainMessage(handler.obtainMessage(MSG_PLAY_ADS, time, 0));
@@ -199,7 +202,6 @@ public class AdManagerProxy extends KrollProxy {
 
 	private void handleCreateAdContext()
 	{
-
 		adContext = adManager.newContext();
 		adContext.setActivity(TiApplication.getAppCurrentActivity());
 
@@ -217,7 +219,7 @@ public class AdManagerProxy extends KrollProxy {
 
 		adContext.addEventListener(adConstants.EVENT_REQUEST_COMPLETE(), new IEventListener() {
 			public void run(final IEvent event) {
-				KrollDict evt = new KrollDict();
+				HashMap evt = new HashMap();
 				IConstants adConstants = adContext.getConstants();
 				evt.put("prerolls", loadSlot(adConstants.TIME_POSITION_CLASS_PREROLL()));
 				evt.put("midrolls", loadSlot(adConstants.TIME_POSITION_CLASS_MIDROLL()));
@@ -231,12 +233,12 @@ public class AdManagerProxy extends KrollProxy {
 				/*
 				 * TODO: should contain these keys: [NSDictionary dictionaryWithObjectsAndKeys: ads, @"ads", nil];
 				 */
-				fireEvent("onslotstarted", new KrollDict());
+				fireEvent("onslotstarted", new HashMap());
 			}
 		});
 		adContext.addEventListener(adConstants.EVENT_SLOT_ENDED(), new IEventListener() {
 			public void run(final IEvent event) {
-				fireEvent("onslotended", new KrollDict());
+				fireEvent("onslotended", new HashMap());
 			}
 		});
 
@@ -257,12 +259,12 @@ public class AdManagerProxy extends KrollProxy {
 		// TODO: iOS listens for the ad "opening", but we don't have a literal translation on Android: it's probably LOADED or STARTED.
 		adContext.addEventListener(adConstants.EVENT_AD_LOADED(), new IEventListener() {
 			public void run(final IEvent event) {
-				fireEvent("onadopen", new KrollDict());
+				fireEvent("onadopen", new HashMap());
 			}
 		});
 		adContext.addEventListener(adConstants.EVENT_ERROR(), new IEventListener() {
 			public void run(final IEvent event) {
-				fireEvent("onadresponseerror", new KrollDict());
+				fireEvent("onadresponseerror", new HashMap());
 			}
 		});
 

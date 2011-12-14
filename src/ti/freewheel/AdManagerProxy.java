@@ -172,28 +172,30 @@ public class AdManagerProxy extends KrollProxy {
 		}
 	}
 
-	private Handler handler = new Handler(TiMessenger.getMainMessenger().getLooper(), this);
     private static final int MSG_CREATE_AD_CONTEXT = 50000;
     private static final int MSG_PLAY_ADS = 50001;
 
-	public boolean handleMessage(Message msg)
+	private final Handler handler = new Handler(TiMessenger.getMainMessenger().getLooper(), new Handler.Callback ()
 	{
-	    switch (msg.what) {
-	        case MSG_CREATE_AD_CONTEXT: {
-	            AsyncResult result = (AsyncResult) msg.obj;
-	            handleCreateAdContext();
-	            result.setResult(null);
-	            return true;
-	        }
-	        case MSG_PLAY_ADS: {
-	            AsyncResult result = (AsyncResult) msg.obj;
-	            handlePlayAds(msg.arg1);
-	            result.setResult(null);
-	            return true;
-	        }
-	    }
-	    return false;
-	}
+    	public boolean handleMessage(Message msg)
+        {
+            switch (msg.what) {
+                case MSG_CREATE_AD_CONTEXT: {
+                    AsyncResult result = (AsyncResult) msg.obj;
+                    handleCreateAdContext();
+                    result.setResult(null);
+                    return true;
+                }
+                case MSG_PLAY_ADS: {
+                    AsyncResult result = (AsyncResult) msg.obj;
+                    handlePlayAds(msg.arg1);
+                    result.setResult(null);
+                    return true;
+                }
+            }
+            return false;
+        }
+    });
 
 	private void handleCreateAdContext()
 	{

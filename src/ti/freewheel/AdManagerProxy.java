@@ -10,29 +10,19 @@ package ti.freewheel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
-import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-
+import org.appcelerator.kroll.common.AsyncResult;
+import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.Log;
 import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.kroll.common.TiMessenger;
-import org.appcelerator.kroll.common.AsyncResult;
-
-import android.app.Activity;
-import android.content.Context;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationManager;
-import android.os.Handler;
-import android.os.Message;
-import android.view.View;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import ti.modules.titanium.media.VideoPlayerProxy;
 import tv.freewheel.ad.factories.AdManagerLoaderFactory;
@@ -43,8 +33,15 @@ import tv.freewheel.ad.interfaces.IConstants;
 import tv.freewheel.ad.interfaces.IEvent;
 import tv.freewheel.ad.interfaces.IEventListener;
 import tv.freewheel.ad.interfaces.ISlot;
-import tv.freewheel.loader.AdManagerLoader;
-import tv.freewheel.loader.utils.Logger;
+import android.app.Activity;
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.Handler;
+import android.os.Message;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.TiVideoView8;
 
 // This proxy can be created by calling Freewheel.createExample({message: "hello world"})
 @Kroll.proxy(creatableInModule = FreewheelModule.class)
@@ -130,13 +127,20 @@ public class AdManagerProxy extends KrollProxy {
 
 	private Location getLocationInfo() {
 		LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-		String bestProvider = locationManager.getBestProvider(new Criteria(), false);
-		return locationManager.getLastKnownLocation(bestProvider);
+		List<String> allProviders = locationManager.getAllProviders();
+		if (allProviders.size() == 0) {
+			Location mock = new Location("network");
+			mock.setLatitude(42);
+			mock.setLongitude(-50);
+			return mock;
+		} else {
+			return locationManager.getLastKnownLocation(allProviders.get(0));
+		}
 	}
 
 	@Kroll.method
 	public void setAdContext(HashMap args) {
-	    KrollDict argsDict = new KrollDict(args);
+		KrollDict argsDict = new KrollDict(args);
 		currentContentUrl = argsDict.getString("contentUrl");
 		currentFallbackId = argsDict.getInt("fallbackId");
 
@@ -156,54 +160,58 @@ public class AdManagerProxy extends KrollProxy {
 			Log.d(LCAT, "Set current player and created ad context");
 		}
 
-        if (!TiApplication.isUIThread()) {
-            TiMessenger.sendBlockingMainMessage(handler.obtainMessage(MSG_CREATE_AD_CONTEXT));
-        } else {
-            handleCreateAdContext();
-        }
+		if (!TiApplication.isUIThread()) {
+			TiMessenger.sendBlockingMainMessage(handler.obtainMessage(MSG_CREATE_AD_CONTEXT));
+		} else {
+			handleCreateAdContext();
+		}
 	}
 
 	@Kroll.method
 	public void playAds(HashMap args) {
-        KrollDict argsDict = new KrollDict(args);
+		KrollDict argsDict = new KrollDict(args);
 		int time = argsDict.getInt("time");
 
 		if (!TiApplication.isUIThread()) {
-		    TiMessenger.sendBlockingMainMessage(handler.obtainMessage(MSG_PLAY_ADS, time, 0));
+			TiMessenger.sendBlockingMainMessage(handler.obtainMessage(MSG_PLAY_ADS, time, 0));
 		} else {
-		    handlePlayAds(time);
+			handlePlayAds(time);
 		}
 	}
 
-    private static final int MSG_CREATE_AD_CONTEXT = 50000;
-    private static final int MSG_PLAY_ADS = 50001;
+	private static final int MSG_CREATE_AD_CONTEXT = 50000;
+	private static final int MSG_PLAY_ADS = 50001;
 
-	private final Handler handler = new Handler(TiMessenger.getMainMessenger().getLooper(), new Handler.Callback ()
-	{
-    	public boolean handleMessage(Message msg)
-        {
-            switch (msg.what) {
-                case MSG_CREATE_AD_CONTEXT: {
-                    AsyncResult result = (AsyncResult) msg.obj;
-                    handleCreateAdContext();
-                    result.setResult(null);
-                    return true;
-                }
-                case MSG_PLAY_ADS: {
-                    AsyncResult result = (AsyncResult) msg.obj;
-                    handlePlayAds(msg.arg1);
-                    result.setResult(null);
-                    return true;
-                }
-            }
-            return false;
-        }
-    });
+	private final Handler handler = new Handler(TiMessenger.getMainMessenger().getLooper(), new Handler.Callback() {
+		public boolean handleMessage(Message msg) {
+			switch (msg.what) {
+				case MSG_CREATE_AD_CONTEXT: {
+					AsyncResult result = (AsyncResult) msg.obj;
+					handleCreateAdContext();
+					result.setResult(null);
+					return true;
+				}
+				case MSG_PLAY_ADS: {
+					AsyncResult result = (AsyncResult) msg.obj;
+					handlePlayAds(msg.arg1);
+					result.setResult(null);
+					return true;
+				}
+			}
+			return false;
+		}
+	});
 
-	private void handleCreateAdContext()
-	{
+	private void handleCreateAdContext() {
+
+		if (adManager == null) {
+			Log.e(LCAT, "ad manager failed to load!");
+			return;
+		}
+
 		adContext = adManager.newContext();
-		adContext.setActivity(TiApplication.getAppCurrentActivity());
+		Activity appCurrentActivity = TiApplication.getAppCurrentActivity();
+		adContext.setActivity(appCurrentActivity);
 
 		final IConstants adConstants = adContext.getConstants();
 
@@ -246,7 +254,7 @@ public class AdManagerProxy extends KrollProxy {
 			public void run(final IEvent event) {
 				currentPlayer.pause();
 				adContext.setVideoState(adConstants.VIDEO_STATE_PAUSED());
-				//currentPlayer.hide();
+				// currentPlayer.hide();
 			}
 		});
 		adContext.addEventListener(adConstants.EVENT_REQUEST_CONTENT_VIDEO_RESUME(), new IEventListener() {
@@ -285,14 +293,34 @@ public class AdManagerProxy extends KrollProxy {
 		adContext.addVideoPlayerNonTemporalSlot(customId, null, 300, 50, null, true, null, null);
 
 		// TODO: we need to pass in a SurfaceDisplay to "registerVideoDisplay", and it MUST be a child of a FrameLayout!
-		//adContext.registerVideoDisplay(currentPlayer);
+		TiViewProxy videoProxy = (TiViewProxy) currentPlayer;
+		TiCompositeLayout layout = (TiCompositeLayout) videoProxy.peekView().getNativeView();
+		TiVideoView8 videoView = null;
+		for (int i = 0; i < layout.getChildCount(); i++) {
+			View child = layout.getChildAt(i);
+			if (child instanceof TiVideoView8) {
+				videoView = (TiVideoView8) child;
+				break;
+			}
+		}
+
+		if (videoView != null) {
+			layout.removeView(videoView);
+
+			FrameLayout frameLayout = new FrameLayout(appCurrentActivity);
+			frameLayout.addView(videoView);
+			layout.addView(frameLayout);
+
+			adContext.registerVideoDisplay(videoView);
+		} else {
+			Log.e(LCAT, "currentPlayer was not properly intialized!");
+		}
 
 		adContext.submitRequest(2);
 	}
 
 	@Kroll.method
-	public void handlePlayAds(int time)
-	{
+	public void handlePlayAds(int time) {
 		currentPlayer.pause();
 
 		ArrayList<ISlot> temporalSlots = adContext.getTemporalSlots();

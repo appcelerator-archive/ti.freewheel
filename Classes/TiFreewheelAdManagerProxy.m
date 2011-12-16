@@ -111,7 +111,7 @@
     [adContext setParameter:FW_PARAMETER_COUNTDOWN_TIMER_BG_COLOR withValue:@"0x000000" forLevel:FW_PARAMETER_LEVEL_OVERRIDE];
     [adContext setParameter:FW_PARAMETER_COUNTDOWN_TIMER_ALPHA withValue:@"1.0" forLevel:FW_PARAMETER_LEVEL_OVERRIDE];
     [adContext setParameter:FW_PARAMETER_COUNTDOWN_TIMER_TEXT_SIZE withValue:@"small" forLevel:FW_PARAMETER_LEVEL_OVERRIDE];
-    [adContext setParameter:FW_PARAMETER_CLICK_DETECTION withValue:@"NO" forLevel:FW_PARAMETER_LEVEL_OVERRIDE];
+    // [adContext setParameter:FW_PARAMETER_CLICK_DETECTION withValue:@"NO" forLevel:FW_PARAMETER_LEVEL_OVERRIDE];
     
     [adContext addVideoPlayerNonTemporalSlot:[NSString stringWithFormat:@"%c%c%c", (char)(65 + (arc4random() % 25)), (char)(48 + (arc4random() % 9)), (char)(65 + (arc4random() % 25))] :nil :300 :50 :nil :YES :FW_SLOT_OPTION_INITIAL_AD_STAND_ALONE :nil :nil :nil];
     
@@ -242,13 +242,18 @@
 
 - (void)onAdSlotStarted:(NSNotification *)notification
 {
-    currentPlayer.view.layer.opacity = 0;
+//    [[[currentPlayer view] layer] setOpacity:0];
+    
+    if ([[notification userInfo] objectForKey:@"error"]) {
+        NSLog(@"[ERROR] SLOT START FAILED: %@", [[notification userInfo] objectForKey:@"error"]);
+    }
     
     NSMutableArray *ads = [[NSMutableArray alloc] init];
-
+        
     for (id<FWAdInstance> instance in [[adContext getSlotByCustomId:[[notification userInfo] objectForKey:FW_INFO_KEY_CUSTOM_ID]] adInstances]) {
         [ads addObject:[[[NSDictionary alloc] initWithObjectsAndKeys:
                          [NSNumber numberWithLongLong:[instance creativeId]], @"creativeId",
+                         [NSNumber numberWithLongLong:[[adContext getSlotByCustomId:[[notification userInfo] objectForKey:FW_INFO_KEY_CUSTOM_ID]] totalDuration]], @"duration",
                          nil] autorelease]];
         
         [[currentCompanionBase view] addSubview:[[adContext getSlotByCustomId:[[[instance companionSlots] objectAtIndex:0] customId]] slotBase]]; // add companion view
@@ -269,11 +274,33 @@
 
 - (void)onAdSlotEnded:(NSNotification *)notification
 {
-    currentPlayer.view.layer.opacity = 1;
+//    [[[currentPlayer view] layer] setOpacity:1];
+    
+    if ([[notification userInfo] objectForKey:@"error"]) {
+        NSLog(@"[ERROR] SLOT END FAILED: %@", [[notification userInfo] objectForKey:@"error"]);
+    }
     
     if ([self _hasListeners:@"onslotended"]) {
         [self fireEvent:@"onslotended" withObject:[notification userInfo]];
     }    
+}
+
+- (void)destroyContext:(id)args
+{
+    ENSURE_UI_THREAD_0_ARGS;
+    
+    NSLog(@"[DEBUG] Releasing ad context");
+    
+    for (id<FWSlot> iter in [adContext siteSectionNonTemporalSlots]) {
+		[iter stop];
+		[[iter slotBase] removeFromSuperview];
+	}
+    
+	for (id<FWSlot> iter in [adContext temporalSlots]) {
+		[iter stop];
+	}
+    
+    [adContext release];
 }
 
 - (void)playAds:(id)args
@@ -282,9 +309,7 @@
 	ENSURE_UI_THREAD_1_ARG(args);
     
     NSLog(@"[DEBUG] Playing ads");
-    
-    [currentPlayer pause];
-    
+        
     for (id<FWSlot> iter in [adContext temporalSlots]) {
 		if ([iter timePosition] == [[args objectForKey:@"time"] longLongValue]) {
 			[iter play];

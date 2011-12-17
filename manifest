@@ -13,6 +13,6 @@ copyright: Copyright (c) 2010-2011 by Appcelerator, Inc.
 # these should not be edited
 name: freewheel
 moduleid: ti.freewheel
-guid: e35390af-1aa9-4416-ba22-88a3b1a50108
+guid: 51784f10-8afc-40f6-9380-9ec1ef90f90b
 platform: android
 minsdk: 1.8.0.1

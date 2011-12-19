@@ -21,7 +21,7 @@
  *	Create a new AdManager instance
  *	\return	an id<FWAdManager>
  */
-FW_EXTERN id<FWAdManager> newAdManager();
+FW_EXTERN id<FWAdManager> newAdManager(void);
 
 /** 
  *	\fn void FWSetLogLevel(FWLogLevel value); 
@@ -44,7 +44,7 @@ FW_EXTERN void FWSetUncaughtExceptionHandler(NSUncaughtExceptionHandler *handler
  *	\fn void FWClearCookie();
  *	Clear All cookies from fwmrm.net domains.
  */
-FW_EXTERN void FWClearCookie();
+FW_EXTERN void FWClearCookie(void);
 
 /** 
  *	\fn void FWSetCookieOptOutState(BOOL value);
@@ -56,7 +56,7 @@ FW_EXTERN void FWSetCookieOptOutState(BOOL value);
  *	\fn BOOL FWGetCookieOptOutState();
  *	Get MRM cookie opt-out state.
  */
-FW_EXTERN BOOL FWGetCookieOptOutState();
+FW_EXTERN BOOL FWGetCookieOptOutState(void);
 
 /**
  *	Protocol for AdManager
@@ -211,7 +211,10 @@ FW_EXTERN BOOL FWGetCookieOptOutState();
  *	\param	videoAssetId	id of the video
  *	\param	duration		duration of the video in seconds
  *	\param	location		location of the video, nil for default
- *	\param	autoPlay		whether the video begins to play automatically without user interaction
+ *	\param	autoPlayType	whether the video begins to play automatically without user interaction
+ *								-	FW_VIDEO_ASSET_AUTO_PLAY_TYPE_NONE
+ *								-	FW_VIDEO_ASSET_AUTO_PLAY_TYPE_ATTENDED		default
+ *								-	FW_VIDEO_ASSET_AUTO_PLAY_TYPE_UNATTENDED
  *	\param	videoPlayRandom	random number that is generated each time a user watches this video asset.
  *	\param	networkId		id of the network the video belongs to, 0 for default
  *	\param	idType			type of video id above, should be one of
@@ -223,7 +226,7 @@ FW_EXTERN BOOL FWGetCookieOptOutState();
  *								-	FW_VIDEO_ASSET_DURATION_TYPE_EXACT		default
  *								-	FW_VIDEO_ASSET_DURATION_TYPE_VARIABLE	for live video
  */
-- (void)setVideoAsset:(NSString *)videoAssetId :(NSTimeInterval)duration :(NSString *)location :(BOOL)autoPlay :(NSUInteger)videoPlayRandom :(NSUInteger)networkId :(FWIdType)idType :(NSUInteger)fallbackId :(FWVideoAssetDurationType)durationType;
+- (void)setVideoAsset:(NSString *)videoAssetId :(NSTimeInterval)duration :(NSString *)location :(FWVideoAssetAutoPlayType)autoPlayType :(NSUInteger)videoPlayRandom :(NSUInteger)networkId :(FWIdType)idType :(NSUInteger)fallbackId :(FWVideoAssetDurationType)durationType;
 
 /**
  *	Set the current logical time position of the content asset.
@@ -367,6 +370,8 @@ FW_EXTERN BOOL FWGetCookieOptOutState();
  */
 - (void)submitRequest:(NSTimeInterval)timeoutInterval;
 
+- (void)addRendererClass:(NSString *)className forContentType:(NSString *)contentType creativeAPI:(NSString *)creativeAPI slotType:(NSString *)slotType baseUnit:(NSString *)baseAdUnit adUnit:(NSString *)soldAsAdUnit withParameters:(NSDictionary *)parameters;
+
 /**
  *	Set the parameters for a special level. 
  *	
@@ -377,6 +382,12 @@ FW_EXTERN BOOL FWGetCookieOptOutState();
  *					-	FW_PARAMETER_LEVEL_OVERRIDE					
  */
 - (void)setParameter:(NSString *)name withValue:(id)value forLevel:(FWParameterLevel)level;
+
+/**
+ *	Retrieve a parameter
+ *  \param  name  The name of the parameter need to retrieve
+ */
+- (id)getParameter:(NSString *)name;
 
 /**
  *	Set a list of acceptable alternative dimensions
@@ -438,6 +449,11 @@ FW_EXTERN BOOL FWGetCookieOptOutState();
  *  \return A id<FWAdManager> instance
  */
 - (id<FWAdManager>)getAdManager;
+
+/**
+ *	Return the nofication center object passed to id<FWContext>#setNotificationCenter:(NSNotificationCenter *), or [NSNotificationCenter defaultCenter]
+ */
+- (NSNotificationCenter *)notificationCenter;
 @end
 
 
@@ -553,6 +569,12 @@ FW_EXTERN BOOL FWGetCookieOptOutState();
 - (void)setParameter:(NSString *)name withValue:(id)value;
 
 /**
+ *	Retrieve a parameter
+ *  \param  name  The name of the parameter need to retrieve
+ */
+- (id)getParameter:(NSString *)name;
+
+/**
  *	Get the total duration of all the ads
  */
 - (NSTimeInterval)totalDuration;
@@ -560,7 +582,7 @@ FW_EXTERN BOOL FWGetCookieOptOutState();
 /**
  *	Get current playback time of the slot
  */
-- (NSTimeInterval)currentPlaybackTime;
+- (NSTimeInterval)playheadTime;
 
 /**
  *	Get current playinng AdInstance
@@ -600,9 +622,11 @@ FW_EXTERN BOOL FWGetCookieOptOutState();
  *
  *	\param	eventName	name of event, FW_EVENT_AD_*
  *	\param	eventType	type of event, FW_EVENT_TYPE_*
- *	\param	external	false returns FreeWheel callback urls; true returns external urls added by renderer 
  *	Valid eventName/evetType pairs:
  *		- (FW_EVENT_AD_IMPRESSION,        FW_EVENT_TYPE_IMPRESSION)	-	ad impression
+ *		- (FW_EVENT_AD_FIRST_QUARTILE,	  FW_EVENT_TYPE_IMPRESSION) -	firstQuartile
+ *		- (FW_EVENT_AD_MIDPOINT,		  FW_EVENT_TYPE_IMPRESSION) -	midPoint
+ *		- (FW_EVENT_AD_THIRD_QUARTILE,	  FW_EVENT_TYPE_IMPRESSION) -	thirdQuartile
  *		- (FW_EVENT_AD_COMPLETE,          FW_EVENT_TYPE_IMPRESSION)	-	complete
  *		- (FW_EVENT_AD_CLICK,             FW_EVENT_TYPE_CLICK)		-	click through
  *		- (FW_EVENT_AD_CLICK,             FW_EVENT_TYPE_CLICKTRACKING)	-	click tracking
@@ -622,7 +646,7 @@ FW_EXTERN BOOL FWGetCookieOptOutState();
  *	\return: Array of url strings
  *	
  */
-- (NSArray *)getEventCallbackUrls:(NSString *)eventName :(NSString *)eventType :(BOOL)external;
+- (NSArray *)getEventCallbackUrls:(NSString *)eventName :(NSString *)eventType;
 
 /**
  *	Set callback urls for specific event
@@ -669,6 +693,22 @@ FW_EXTERN BOOL FWGetCookieOptOutState();
  * \return an array of id<FWSlot>
  */
 - (NSArray *)companionSlots;
+
+/**
+ * Get all creative renditions of the ad instance
+ */
+- (NSArray*/*id<FWCreativeRendition>*/)creativeRenditions;
+
+/**
+ * Set the primary creative rendition
+ * \param  primaryCreativeRendition     a pointer to the primary creative rendition
+ */
+- (void)setPrimaryCreativeRendition:(id<FWCreativeRendition>)primaryCreativeRendition;
+
+/**
+ *	Get rendering slot
+ */
+- (id<FWSlot>)slot;
 @end
 
 
@@ -709,6 +749,17 @@ FW_EXTERN BOOL FWGetCookieOptOutState();
  *	Set wrapper url of the rendition
  */
 - (void)setWrapperUrl:(NSString *)value;
+
+/**
+ *	Get creativeAPI of the rendition
+ *	\return  creativeAPI in a string
+ */
+- (NSString *)creativeAPI;
+
+/**
+ *	Set creativeAPI of the rendition
+ */
+- (void)setCreativeAPI:(NSString *)value;
 
 /**
  *	Get base unit of the rendition
@@ -760,11 +811,6 @@ FW_EXTERN BOOL FWGetCookieOptOutState();
  *	\return Duration in seconds
  */
 - (void)setDuration:(NSTimeInterval)value;
-
-/**
- *	Get parameter value of the rendition
- */
-- (NSString *)getParameter:(NSString *)name;
 
 /**
  *	Set parameter of the rendition
@@ -897,16 +943,6 @@ FW_EXTERN BOOL FWGetCookieOptOutState();
 - (BOOL)moviePlayerFullscreen;
 
 /**
- *	DEPRECATED. Use -[FWAdInstance getEventCallbackUrls:::] instead.
- *
- *	Get event callback urls.
- *
- *	\param	eventName Event to be processed, one of FW_EVENT_AD_* (not including FW_EVENT_AD_IMPRESSION) in FWConstants.h
- *	\return An array of NSString, usually 0 or 1 URL, maybe more if multiple tracking URLs for same event 
- */
-- (NSArray * /* NSString * */)getEventCallbackURLs:(NSString *)eventName;
-
-/**
  *	Process renderer event
  *	\param	eventName Event to be processed, one of FW_EVENT_AD_* in FWConstants.h
  *  \param  details  The addtional infomation need to be processed by AdManager. Available keys:
@@ -937,12 +973,7 @@ FW_EXTERN BOOL FWGetCookieOptOutState();
  *	Retrieve a parameter
  *  \param  name  The name of the parameter need to retrieve
  */
-- (id)getParameter:(NSString *)name;  
-
-/**
- *	Get rendering slot
- */
-- (id<FWSlot>)slot;
+- (id)getParameter:(NSString *)name;
 
 /**
  * Get rendering ad instance
@@ -950,32 +981,27 @@ FW_EXTERN BOOL FWGetCookieOptOutState();
 - (id<FWAdInstance>)adInstance;
 
 /**
- * Get all creative renditions of the ad instance
- */
-- (NSArray*/*id<FWCreativeRendition>*/)creativeRenditions;
-
-/**
- * Set the primary creative rendition
- * \param  primaryCreativeRendition     a pointer to the primary creative rendition
- */
-- (void)setPrimaryCreativeRendition:(id<FWCreativeRendition>)primaryCreativeRendition;
-
-/**
  * Change state for current renderer
  * \param  state	target transition state demanded, available values:
  * 					- FW_RENDERER_STATE_STARTED
- * 					- FW_RENDERER_STATE_COMPLETING
  * 					- FW_RENDERER_STATE_COMPLETED
  * 					- FW_RENDERER_STATE_FAILED
  * \param  details	detail info to be passed
- * 					- For FW_RENDERER_STATE_FAILED: FW_INFO_KEY_ERROR_MODULE, FW_INFO_KEY_ERROR_CODE are required. FW_INFO_KEY_ERROR_INFO is optional.
+ * 					- For FW_RENDERER_STATE_FAILED:FW_INFO_KEY_ERROR_CODE are required. FW_INFO_KEY_ERROR_INFO is optional.
  */
 - (void)handleStateTransition:(FWRendererStateType)state info:(NSDictionary *)details;
 
 /**
- *	Return the nofication center object passed to id<FWContext>#setNotificationCenter:(NSNotificationCenter *), or [NSNotificationCenter defaultCenter]
+ *	Return id<FWContext> object, which can be used to listen notification using it's notificationCenter
+ *  and as the sender of any notification which renderer need to post
+ *
+ *	Note: \n
+ *	for post a notification: \n
+ *	[[[rendererController notificationContext] notificationCenter] postNotificationName:EVENT_NAME object:[_rendererController notificationContext] userInfo:nil]; \n
+ *	for listen a notification: \n
+ *	[[[rendererController notificationContext] notificationCenter] addObserver:self selector:@selector(handler) name:EVENT_NAME object:nil];
  */
-- (NSNotificationCenter *)notificationCenter;
+- (id<FWContext>)notificationContext;
 
 /**
  *	Schedule ad instances for the given slots.
@@ -983,14 +1009,14 @@ FW_EXTERN BOOL FWGetCookieOptOutState();
 - (NSArray * /* id<FWAdInstance> */)scheduleAdInstances:(NSArray * /* id<FWSlot> */)slots;
 
 /**
- *	Renderer can use this to notifiy event, the notification sender is current FWContext object
- */
-- (void)postNotification:(NSString *)eventType :(NSDictionary *)eventInfo;
-
-/**
  *	Renderer can use this to request main video to pause or resume, the notification sender is current FWContext object
  */
 - (void)requestContentStateChange:(BOOL)pause;
+
+/**
+ *  Renderer should use this API to trace all logs
+ */
+- (void)log:(NSString *)msg;
 @end
 
 
@@ -1042,6 +1068,6 @@ FW_EXTERN BOOL FWGetCookieOptOutState();
 /**
  *	Get the ad current playback time
  */
-- (NSTimeInterval)currentPlaybackTime;
+- (NSTimeInterval)playheadTime;
 @end
 

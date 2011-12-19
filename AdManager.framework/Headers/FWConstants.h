@@ -121,14 +121,8 @@ typedef enum {
  * Enumeration of FWRendererState types
  */
 typedef enum {
-	/** Renderer State init */
-	FW_RENDERER_STATE_INIT						=	1,	
-	/** Renderer State starting */
-	FW_RENDERER_STATE_STARTING					=	2,
 	/** Renderer State started, if renderer actually started */
 	FW_RENDERER_STATE_STARTED					=	3,
-	/** Renderer State completing, if renderer finished its rendering job, should change to this state*/
-	FW_RENDERER_STATE_COMPLETING				=	4,
 	/** Renderer State completed, if renderer done the clean up and ready to be disposed, should change to this state */
 	FW_RENDERER_STATE_COMPLETED					=	5,
 	/** Renderer State failed */
@@ -155,6 +149,19 @@ typedef enum {
 	FW_VIDEO_ASSET_DURATION_TYPE_VARIABLE			=	2
 } FWVideoAssetDurationType;
 
+/**
+ * Enumeration of video asset auto play types
+ */
+typedef enum {
+    
+	/** Video Asset auto play type none */
+	FW_VIDEO_ASSET_AUTO_PLAY_TYPE_NONE	= 0,
+	/** Video Asset auto play type attended*/
+	FW_VIDEO_ASSET_AUTO_PLAY_TYPE_ATTENDED	=	1,	
+	/** Video Asset auto play type unattended */
+	FW_VIDEO_ASSET_AUTO_PLAY_TYPE_UNATTENDED =	2
+} FWVideoAssetAutoPlayType;
+
 /** 
  *	AdManager publishes notification of this topic after ad request completed with info:
  *	FW_INFO_KEY_ERROR		-	a NSArray of NSError, optional
@@ -177,10 +184,6 @@ FW_EXTERN NSString *const FW_NOTIFICATION_SLOT_ENDED;
  *	AdManager publishes notification of this topic when in-app view opened 
  */
 FW_EXTERN NSString *const FW_NOTIFICATION_IN_APP_VIEW_OPEN;
-//RDK only
-//FW_INFO_KEY_CUSTOM_ID		-	slot
-//@"url"					-	url
-//@"adInstance"				-	ad
 
 /** 
  *	AdManager publishes notification of this topic when in-app view closed 
@@ -190,7 +193,6 @@ FW_EXTERN NSString *const FW_NOTIFICATION_IN_APP_VIEW_CLOSE;
  *	AdManager publishes notification of this topic when in-app view will open media document 
  */
 FW_EXTERN NSString *const FW_NOTIFICATION_IN_APP_VIEW_WILL_OPEN_MEDIA_DOCUMENT;
-//RDK only
 
 /** 
  *	AdManager publishes notification of this topic when ad needs to pause the main content video
@@ -203,6 +205,21 @@ FW_EXTERN NSString *const FW_NOTIFICATION_CONTENT_PAUSE_REQUEST;
  *	FW_INFO_KEY_CUSTOM_ID		-	slot
  */
 FW_EXTERN NSString *const FW_NOTIFICATION_CONTENT_RESUME_REQUEST;
+
+
+/** 
+ *	Player sends notification of this topic after video display base is changed by setVideoDisplayBase
+ *	FW_INFO_KEY_VIDEO_DISPLAY_BASE		-	key of video display base object
+ */
+FW_PRIVATE_EXTERN NSString *FW_NOTIFICATION_VIDEO_DISPLAY_BASE_CHANGED;
+
+/** 
+ *	Player sends notification of this topic after size of video display base is changed
+ *	FW_INFO_KEY_VIDEO_DISPLAY_BASE		-	key of video display base object
+ */
+FW_PRIVATE_EXTERN NSString *FW_NOTIFICATION_VIDEO_DISPLAY_BASE_FRAME_CHANGED;
+
+
 
 /**
  * Predefined ad unit: preroll
@@ -344,8 +361,20 @@ FW_EXTERN NSString *const FW_CAPABILITY_SYNC_MULTI_REQUESTS;
  */
 FW_EXTERN NSString *const FW_CAPABILITY_RESET_EXCLUSIVITY;
 
+/**
+ *	Player expects ad should have a list of fallback alternative ads.
+ *	
+ *	Note:
+ *		This is on by default
+ */
 FW_EXTERN NSString *const FW_CAPABILITY_FALLBACK_ADS;
 
+/**
+*	Player expects multiple creative renditions for an ad.
+*	
+*	Note:
+*		This is on by default
+*/
 FW_EXTERN NSString *const FW_CAPABILITY_MULTIPLE_CREATIVE_RENDITIONS;
 
 /**
@@ -632,18 +661,6 @@ FW_EXTERN NSString *const FW_PARAMETER_TRANSPARENT_BACKGROUND;
  */
 FW_EXTERN NSString *const FW_PARAMETER_NONTEMPORAL_SLOT_VISIBILITY_AUTO_TRACKING;
 
-FW_EXTERN NSString *const FW_NOTIFICATION_VIDEO_DISPLAY_BASE_FRAME_CHANGED;
-
-/**
- *  The key of Medialets enable parameter. NSString @"YES", @"NO" are valid. Default is @"NO". This parameter can only be set before FW_NOTIFICATION_REQUEST_COMPLETE event, otherwise no effect
- */
-FW_EXTERN NSString *const FW_PARAMETER_MEDIALETS_ENABLE;
-
-/**
- *  The key of Medialets appKey parameter. The value of this property is a NSString. 
- */
-FW_EXTERN NSString *const FW_PARAMETER_MEDIALETS_APP_KEY;
-
 /**
  *  Key of FW_NOTIFICATION_REQUEST_COMPLETE notification's userInfo dictionary.
  */
@@ -720,6 +737,11 @@ FW_EXTERN NSString *const FW_ERROR_MISSING_PARAMETER;
 /**
  *  Value for key FW_INFO_KEY_ERROR_CODE
  */
+FW_EXTERN NSString *const FW_ERROR_MISSING_LIB;
+
+/**
+ *  Value for key FW_INFO_KEY_ERROR_CODE
+ */
 FW_EXTERN NSString *const FW_ERROR_NO_AD_AVAILABLE;
 
 /**
@@ -748,6 +770,11 @@ FW_EXTERN NSString *const FW_ERROR_NO_RENDERER;
 FW_EXTERN NSString *const FW_ERROR_IN_APP_VIEW;
 
 /**
+ *  Value for key FW_ERROR_3P_COMPONENT
+ */
+FW_EXTERN NSString *const FW_ERROR_3P_COMPONENT;
+
+/**
  *  Key of the details dictionary passed to -[FWRendererController processEvent::]. Its value is the custom event name to be processed.
  */
 FW_EXTERN NSString *const FW_INFO_KEY_CUSTOM_EVENT_NAME; 
@@ -762,119 +789,55 @@ FW_EXTERN NSString *const FW_INFO_KEY_SHOW_BROWSER;
  */
 FW_EXTERN NSString *const FW_INFO_KEY_VIDEO_DISPLAY_BASE;
 
-/** 
- *	AdManager publishes notification of this topic when AdMob renderer will present full screen modal 
- */
-FW_EXTERN NSString *const FW_NOTIFICATION_ADMOB_PRESENT_FULL_SCREEN_MODAL;
-
-/** 
- *	AdManager publishes notification of this topic when AdMob renderer will dismiss full screen modal 
- */
-FW_EXTERN NSString *const FW_NOTIFICATION_ADMOB_DISMISS_FULL_SCREEN_MODAL;
-
 /**
- * Ad unit for adMob interstitial ad EventAppOpen
- *
- * See Also:
- *  - FW_ADUNIT_ADMOB_INTERSTITIAL_SCREEN_CHANGE
- *	- FW_ADUNIT_ADMOB_INTERSTITIAL_PREROLL
- *	- FW_ADUNIT_ADMOB_INTERSTITIAL_POSTROLL
- *	- FW_ADUNIT_ADMOB_INTERSTITIAL_OTHER
- */
-FW_EXTERN NSString *const FW_ADUNIT_ADMOB_INTERSTITIAL_APP_OPEN;
-
-/**
- * Ad unit for adMob interstitial ad EventScreenChange
- *
- * See Also:
- *  - FW_ADUNIT_ADMOB_INTERSTITIAL_APP_OPEN
- *	- FW_ADUNIT_ADMOB_INTERSTITIAL_PREROLL
- *	- FW_ADUNIT_ADMOB_INTERSTITIAL_POSTROLL
- *	- FW_ADUNIT_ADMOB_INTERSTITIAL_OTHER
- */
-FW_EXTERN NSString *const FW_ADUNIT_ADMOB_INTERSTITIAL_SCREEN_CHANGE;
-
-/**
- * Ad unit for adMob interstitial ad EventPreroll
- *
- * See Also:
- *  - FW_ADUNIT_ADMOB_INTERSTITIAL_APP_OPEN
- *	- FW_ADUNIT_ADMOB_INTERSTITIAL_SCREEN_CHANGE
- *	- FW_ADUNIT_ADMOB_INTERSTITIAL_POSTROLL
- *	- FW_ADUNIT_ADMOB_INTERSTITIAL_OTHER
- */
-FW_EXTERN NSString *const FW_ADUNIT_ADMOB_INTERSTITIAL_PREROLL;
-
-/**
- * Ad unit for adMob interstitial ad EventPostroll
- *
- * See Also:
- *  - FW_ADUNIT_ADMOB_INTERSTITIAL_APP_OPEN
- *	- FW_ADUNIT_ADMOB_INTERSTITIAL_SCREEN_CHANGE
- *	- FW_ADUNIT_ADMOB_INTERSTITIAL_PREROLL
- *	- FW_ADUNIT_ADMOB_INTERSTITIAL_OTHER
- */
-FW_EXTERN NSString *const FW_ADUNIT_ADMOB_INTERSTITIAL_POSTROLL;
-
-/**
- * Ad unit for adMob interstitial ad EventOther
- *
- * See Also:
- *  - FW_ADUNIT_ADMOB_INTERSTITIAL_APP_OPEN
- *	- FW_ADUNIT_ADMOB_INTERSTITIAL_SCREEN_CHANGE
- *	- FW_ADUNIT_ADMOB_INTERSTITIAL_PREROLL
- *	- FW_ADUNIT_ADMOB_INTERSTITIAL_POSTROLL
- */
-FW_EXTERN NSString *const FW_ADUNIT_ADMOB_INTERSTITIAL_OTHER;
-
-/**
- *  Specify the postal code of the user for targeting passthrough to the AdMob/Rhythm NewMedia component.
+ *  Specify the postal code of the user for targeting passthrough to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_POSTAL_CODE;
 
 /**
- *  Specify the area code of the user's phone for targeting passthrough to the AdMob/Rhythm NewMedia componenet.
+ *  Specify the area code of the user's phone for targeting passthrough to 3rd party componenet.
  */
 FW_EXTERN NSString *const FW_PARAMETER_AREA_CODE;
 
 /**
- *  Specify the user’s date of birth for targeting passthrough to the AdMob/Rhythm NewMedia component.
+ *  Specify the user’s date of birth for targeting passthrough to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_DATE_OF_BIRTH;
 
 /**
- *  Specify the user’s gender for targeting passthrough to the AdMob/Rhythm NewMedia componenet.
+ *  Specify the user’s gender for targeting passthrough to 3rd party componenet.
  */
 FW_EXTERN NSString *const FW_PARAMETER_GENDER;
 
 /**
- *  Specify a list of keywords for targeting passthrough to the AdMob componenet.
+ *  Specify a list of keywords for targeting passthrough to 3rd party componenet.
  */
 FW_EXTERN NSString *const FW_PARAMETER_KEYWORDS;
 
 /**
- *  Specify the area code of the user’s phone for targeting passthrough to the AdMob componenet.
+ *  Specify the area code of the user’s phone for targeting passthrough to 3rd party componenet.
  */
 FW_EXTERN NSString *const FW_PARAMETER_SEARCH_STRING;
 
 /**
- *  Specify the AdMob Interstitial Event type of AdMob InterstitialAd request.
- *  value is FW_ADUNIT_ADMOB_INTERSTITIAL_APP_OPEN or FW_ADUNIT_ADMOB_INTERSTITIAL_SCREEN_CHANGE
- *
+ *  Specify the user’s marital status for targeting passthrough to 3rd party componenet.
  */
-FW_EXTERN NSString *const FW_PARAMETER_ADMOB_INTERSTITIAL_TYPE;
+FW_EXTERN NSString *const FW_PARAMETER_MARITAL;
 
 /**
- *  Specify whether the AdMob renderer to use test mode
- *
+ *  Specify the user’s enthnicity for targeting passthrough to 3rd party componenet.
  */
-FW_EXTERN NSString *const FW_PARAMETER_ADMOB_TEST_MODE;
+FW_EXTERN NSString *const FW_PARAMETER_ETHNICITY;
 
 /**
- *  Specify the click actions when test AdMob Renderer
- *
+ *  Specify the user’s orientation for targeting passthrough to 3rd party componenet.
  */
-FW_EXTERN NSString *const FW_PARAMETER_ADMOB_TEST_ACTION;
+FW_EXTERN NSString *const FW_PARAMETER_ORIENTATION;
+
+/**
+ *  Specify the user’s income for targeting passthrough to 3rd party componenet.
+ */
+FW_EXTERN NSString *const FW_PARAMETER_INCOME;
 
 /**
  *	Specify the whether AdManager handle temporal ad click. value should 'true'/'false' or 'on'/'off' or 'yes'/'no' 

@@ -23,7 +23,8 @@
  *		FWNullAdRenderer
  *		FWVastTranslator
  *	- Add and register additional 3rd party renderer framework to your project (optional)
- *
+ *      Use the macro FW_LINK_RENDERER(<renderer class name>) in .m file outside any @implementation, eg:
+ *      FW_LINK_RENDERER(FWSkeletonRenderer)
  */
 
 #import "FWConstants.h"

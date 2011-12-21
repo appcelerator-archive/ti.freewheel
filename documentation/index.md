@@ -4,6 +4,11 @@
 
 Provides access to FreeWheel.
 
+## Getting Started
+
+View the [Configuring Apps to Use Modules](https://wiki.appcelerator.org/display/guides/Configuring+Apps+to+Use+Modules) page for instructions on getting
+started with using this module in your application.
+
 ## Accessing the Ti.FreeWheel Module
 
 To access this module from JavaScript, you would do the following (recommended):

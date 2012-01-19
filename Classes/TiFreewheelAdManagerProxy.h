@@ -20,6 +20,7 @@
     MPMoviePlayerController *currentPlayer; // video player that is rendering content
     TiViewProxy *currentBase; // used to attach FW views
     TiViewProxy *currentCompanionBase; // used to attach companion ad
+    BOOL processCompanion;
     id<FWAdManager> adManager;
     id<FWContext> adContext;
 }

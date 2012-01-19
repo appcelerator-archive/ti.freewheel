@@ -83,7 +83,8 @@
     currentSiteSection = [args objectForKey:@"siteSection"];
     currentVideoId = [args objectForKey:@"videoId"];
     currentProfile = [args objectForKey:@"profile"];
-    
+    processCompanion = [TiUtils boolValue:[args objectForKey:@"processCompanion"] def:YES];
+            
     for (NSString *key in args) {
         NSLog(@"[DEBUG] %@ is set on %@", key, [args objectForKey:key]);
     }
@@ -194,18 +195,22 @@
             }
         }
         
-        NSLog(@"[DEBUG] Looking for non-temporal video slots");
-        for (id<FWSlot> nonTemporalVideoSlot in [adContext videoPlayerNonTemporalSlots]) {
-            NSLog(@"[DEBUG] Found non-temporal video slot");
-            [[currentCompanionBase view] addSubview:[nonTemporalVideoSlot slotBase]];
-            [nonTemporalVideoSlot play];
-        }
-        
-        NSLog(@"[DEBUG] Looking for non-temporal site section slots");
-        for (id<FWSlot> nonTemporalSiteSectionSlot in [adContext siteSectionNonTemporalSlots]) {
-            NSLog(@"[DEBUG] Found non-temporal site section slot");
-            [[currentCompanionBase view] addSubview:[nonTemporalSiteSectionSlot slotBase]];
-            [nonTemporalSiteSectionSlot play];
+        if (processCompanion) {
+            NSLog(@"[DEBUG] Processing companion at ad response");
+
+            NSLog(@"[DEBUG] Looking for non-temporal video slots");
+            for (id<FWSlot> nonTemporalVideoSlot in [adContext videoPlayerNonTemporalSlots]) {
+                NSLog(@"[DEBUG] Found non-temporal video slot");
+                [[currentCompanionBase view] addSubview:[nonTemporalVideoSlot slotBase]];
+                [nonTemporalVideoSlot play];
+            }
+            
+            NSLog(@"[DEBUG] Looking for non-temporal site section slots");
+            for (id<FWSlot> nonTemporalSiteSectionSlot in [adContext siteSectionNonTemporalSlots]) {
+                NSLog(@"[DEBUG] Found non-temporal site section slot");
+                [[currentCompanionBase view] addSubview:[nonTemporalSiteSectionSlot slotBase]];
+                [nonTemporalSiteSectionSlot play];
+            }
         }
         
         adPositions = [[NSDictionary alloc] initWithObjectsAndKeys:
@@ -275,10 +280,13 @@
                              [NSNumber numberWithLongLong:[[adContext getSlotByCustomId:[[notification userInfo] objectForKey:FW_INFO_KEY_CUSTOM_ID]] totalDuration]], @"duration",
                              nil] autorelease]];
                         
-            if ([[instance companionSlots] count] > 0) {
-                [[currentCompanionBase view] addSubview:[[adContext getSlotByCustomId:[[[instance companionSlots] objectAtIndex:0] customId]] slotBase]]; // add companion view
-            } else {
-                NSLog(@"[DEBUG] Did not find companion slots");
+            if (processCompanion) {
+                NSLog(@"[DEBUG] Processing companion at slot");
+                if ([[instance companionSlots] count] > 0) {
+                    [[currentCompanionBase view] addSubview:[[adContext getSlotByCustomId:[[[instance companionSlots] objectAtIndex:0] customId]] slotBase]]; // add companion view
+                } else {
+                    NSLog(@"[DEBUG] Did not find companion slots");
+                }
             }
             
             NSLog(@"[DEBUG] Ad Instance: %@", instance);

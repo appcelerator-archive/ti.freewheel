@@ -311,13 +311,35 @@
 
 - (void)onAdSlotEnded:(NSNotification *)notification
 {    
+    NSString *type = [[NSString alloc] init];
+    
     if ([[notification userInfo] objectForKey:@"error"]) {
-        NSLog(@"[ERROR] SLOT END FAILED: %@", [[notification userInfo] objectForKey:@"error"]);
+        // NSLog(@"[ERROR] SLOT END FAILED: %@", [[notification userInfo] objectForKey:@"error"]);
+    }
+    
+    switch ([[adContext getSlotByCustomId:[[notification userInfo] objectForKey:FW_INFO_KEY_CUSTOM_ID]] timePositionClass]) {
+        case FW_TIME_POSITION_CLASS_PREROLL:
+            type = @"preroll";
+            break;
+        case FW_TIME_POSITION_CLASS_MIDROLL:
+            type = @"midroll";
+            break;
+        case FW_TIME_POSITION_CLASS_POSTROLL:
+            type = @"postroll";
+            break;
+        default:
+            type = @"unknown";
     }
     
     if ([self _hasListeners:@"onslotended"]) {
-        [self fireEvent:@"onslotended" withObject:[notification userInfo]];
-    }    
+        [self fireEvent:@"onslotended" withObject:[[[NSDictionary alloc] initWithObjectsAndKeys:
+                                                   type, @"adType",
+                                                   nil] autorelease]];
+    }
+    
+    [type release];
+}
+
 - (void)processClick:(id)args
 {
     ENSURE_UI_THREAD_0_ARGS;

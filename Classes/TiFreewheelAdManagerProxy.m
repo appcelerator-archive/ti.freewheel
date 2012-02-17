@@ -29,12 +29,12 @@
     serverUrl = [properties objectForKey:@"serverUrl"];
         
     for (NSString *key in properties) {
-        NSLog(@"[DEBUG] %@ is set to %@", key, [properties objectForKey:key]);
+        // NSLog(@"[DEBUG] %@ is set to %@", key, [properties objectForKey:key]);
     }
         
     [self start:nil];
 
-    NSLog(@"[DEBUG] Configured Ad Manager proxy");
+    // NSLog(@"[DEBUG] Configured Ad Manager proxy");
 }
 
 - (void)_initWithProperties:(NSDictionary *)properties
@@ -47,7 +47,7 @@
 {
     ENSURE_UI_THREAD_0_ARGS;
     
-    FWSetLogLevel(FW_LOG_LEVEL_INFO);
+    FWSetLogLevel(FW_LOG_LEVEL_QUIET); // set this to FW_LOG_LEVEL_INFO for more logging
         
     adManager = newAdManager();
     
@@ -60,14 +60,14 @@
 	[locationManager startUpdatingLocation];	
 	[adManager setLocation:[locationManager location]];
 	
-    NSLog(@"[DEBUG] Started Ad Manager");
+    // NSLog(@"[DEBUG] Started Ad Manager");
 }
 
 -(void)setCurrentController:(UIViewController*)controller
 {
     [adManager setCurrentViewController:controller];
     
-    NSLog(@"[DEBUG] Set current controller to: %@", controller);
+    // NSLog(@"[DEBUG] Set current controller to: %@", controller);
 }
 
 - (void)setAdContext:(id)args
@@ -86,16 +86,16 @@
     processCompanion = [TiUtils boolValue:[args objectForKey:@"processCompanion"] def:YES];
             
     for (NSString *key in args) {
-        NSLog(@"[DEBUG] %@ is set on %@", key, [args objectForKey:key]);
+        // NSLog(@"[DEBUG] %@ is set on %@", key, [args objectForKey:key]);
     }
     
     [self setCurrentController:[[TiApp app] controller]];
              
     currentPlayer = [videoPlayer player]; // we do get access to this, even though xcode is complaining
     [currentPlayer retain];
-    NSLog(@"currentPlayer: %@", currentPlayer);
+    // NSLog(@"currentPlayer: %@", currentPlayer);
     
-    NSLog(@"[DEBUG] Set current player and created ad context");
+    // NSLog(@"[DEBUG] Set current player and created ad context");
     
     [self createAdContext];
 }
@@ -123,7 +123,7 @@
     [adContext setVideoDisplayBase:[currentBase view]];
     [adContext setMoviePlayerController:currentPlayer];
     
-    NSLog(@"[DEBUG] Created ad context and submitting request");
+    // NSLog(@"[DEBUG] Created ad context and submitting request");
     
     [adContext submitRequest:6];
 }
@@ -132,28 +132,28 @@
 {    
     [adManager setLocation:newLocation];
     
-    NSLog(@"[DEBUG] Set location");
+    // NSLog(@"[DEBUG] Set location");
 }
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error 
 {
-    NSLog(@"[DEBUG] Location manager had an error: %@", error);
+    // NSLog(@"[DEBUG] Location manager had an error: %@", error);
 }
 
 - (void)onAdRequestComplete:(NSNotification *)notification 
 {    
-    NSLog(@"[DEBUG] Ad response recieved");
-    NSLog(@"[DEBUG] Attempting to setup player based on response");
+    // NSLog(@"[DEBUG] Ad response recieved");
+    // NSLog(@"[DEBUG] Attempting to setup player based on response");
     
     if ([notification object] != adContext || [[notification userInfo] objectForKey:@"error"]) {
-        NSLog(@"[DEBUG] There was an error with the ad response");
+        // NSLog(@"[DEBUG] There was an error with the ad response");
         
         if ([self _hasListeners:@"onadresponseerror"]) {
             [self fireEvent:@"onadresponseerror" withObject:[notification userInfo]];
         }
     } else {
-        NSLog(@"[DEBUG] Ad response looks good");
-        NSLog(@"[DEBUG] Setting MP controller and attempting to play ads");
+        // NSLog(@"[DEBUG] Ad response looks good");
+        // NSLog(@"[DEBUG] Setting MP controller and attempting to play ads");
 
         WARN_IF_BACKGROUND_THREAD_OBJ;
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAdSlotStarted:) name:FW_NOTIFICATION_SLOT_STARTED object:adContext];
@@ -169,26 +169,26 @@
         NSDictionary *adPositions;
         
         for (id<FWSlot> temporalSlot in [adContext temporalSlots]) {
-            NSLog(@"Time Position: %f", [temporalSlot timePosition]);
+            // NSLog(@"Time Position: %f", [temporalSlot timePosition]);
             
             switch ([temporalSlot timePositionClass]) {
                 case FW_TIME_POSITION_CLASS_PREROLL:
                     [prerollSlots addObject:[[[NSDictionary alloc] initWithObjectsAndKeys:
                                              [NSNumber numberWithDouble:[temporalSlot timePosition]], @"time", 
                                              nil] autorelease]];
-                    NSLog(@"[DEBUG] Time Position Class is PREROLL");
+                    // NSLog(@"[DEBUG] Time Position Class is PREROLL");
                     break;
                 case FW_TIME_POSITION_CLASS_MIDROLL:
                     [midrollSlots addObject:[[[NSDictionary alloc] initWithObjectsAndKeys:
                                              [NSNumber numberWithDouble:[temporalSlot timePosition]], @"time", 
                                              nil] autorelease]];
-                    NSLog(@"[DEBUG] Time Position Class is MIDROLL");
+                    // NSLog(@"[DEBUG] Time Position Class is MIDROLL");
                     break;
                 case FW_TIME_POSITION_CLASS_POSTROLL:
                     [postrollSlots addObject:[[[NSDictionary alloc] initWithObjectsAndKeys:
                                               [NSNumber numberWithDouble:[temporalSlot timePosition]], @"time", 
                                               nil] autorelease]];
-                    NSLog(@"[DEBUG] Time Position Class is POSTROLL");
+                    // NSLog(@"[DEBUG] Time Position Class is POSTROLL");
                     break;
                 default:
                     break;
@@ -196,18 +196,18 @@
         }
         
         if (processCompanion) {
-            NSLog(@"[DEBUG] Processing companion at ad response");
+            // NSLog(@"[DEBUG] Processing companion at ad response");
 
-            NSLog(@"[DEBUG] Looking for non-temporal video slots");
+            // NSLog(@"[DEBUG] Looking for non-temporal video slots");
             for (id<FWSlot> nonTemporalVideoSlot in [adContext videoPlayerNonTemporalSlots]) {
-                NSLog(@"[DEBUG] Found non-temporal video slot");
+                // NSLog(@"[DEBUG] Found non-temporal video slot");
                 [[currentCompanionBase view] addSubview:[nonTemporalVideoSlot slotBase]];
                 [nonTemporalVideoSlot play];
             }
             
-            NSLog(@"[DEBUG] Looking for non-temporal site section slots");
+            // NSLog(@"[DEBUG] Looking for non-temporal site section slots");
             for (id<FWSlot> nonTemporalSiteSectionSlot in [adContext siteSectionNonTemporalSlots]) {
-                NSLog(@"[DEBUG] Found non-temporal site section slot");
+                // NSLog(@"[DEBUG] Found non-temporal site section slot");
                 [[currentCompanionBase view] addSubview:[nonTemporalSiteSectionSlot slotBase]];
                 [nonTemporalSiteSectionSlot play];
             }
@@ -232,11 +232,11 @@
 
 - (void)frameChanged:(NSNotification*)notification
 {
-    NSLog(@"[DEBUG] FRAME CHANGED");
+    // NSLog(@"[DEBUG] FRAME CHANGED");
     
     for (UIView *subview in [[currentBase view] subviews])
     {
-        NSLog(@"[DEBUG] %@", subview);
+        // NSLog(@"[DEBUG] %@", subview);
     }
 }
 
@@ -249,7 +249,7 @@
 
 - (void)onContentVideoPauseRequest:(NSNotification*)notification
 {
-    NSLog(@"[DEBUG] Pause request sent from AdManager");
+    // NSLog(@"[DEBUG] Pause request sent from AdManager");
 
     [currentPlayer pause];
     [adContext setVideoState:FW_VIDEO_STATE_PAUSED];
@@ -257,7 +257,7 @@
 
 - (void)onContentVideoResumeRequest:(NSNotification*)notification
 {
-    NSLog(@"[DEBUG] Resume request sent from AdManager");
+    // NSLog(@"[DEBUG] Resume request sent from AdManager");
     
     [currentPlayer play];
     [adContext setVideoState:FW_VIDEO_STATE_PLAYING];
@@ -265,10 +265,10 @@
 
 - (void)onAdSlotStarted:(NSNotification *)notification
 {    
-    NSLog(@"[DEBUG] Attempting to play slot");
+    // NSLog(@"[DEBUG] Attempting to play slot");
     
     if ([[notification userInfo] objectForKey:@"error"]) {
-        NSLog(@"[ERROR] SLOT START FAILED: %@", [[notification userInfo] objectForKey:@"error"]);
+        // NSLog(@"[ERROR] SLOT START FAILED: %@", [[notification userInfo] objectForKey:@"error"]);
     }
 
     NSMutableArray *ads = [[NSMutableArray alloc] init];
@@ -283,19 +283,19 @@
                              nil] autorelease]];
                         
             if (processCompanion) {
-                NSLog(@"[DEBUG] Processing companion at slot");
+                // NSLog(@"[DEBUG] Processing companion at slot");
                 if ([[instance companionSlots] count] > 0) {
                     [[currentCompanionBase view] addSubview:[[adContext getSlotByCustomId:[[[instance companionSlots] objectAtIndex:0] customId]] slotBase]]; // add companion view
                 } else {
-                    NSLog(@"[DEBUG] Did not find companion slots");
+                    // NSLog(@"[DEBUG] Did not find companion slots");
                 }
             }
             
-            NSLog(@"[DEBUG] Ad Instance: %@", instance);
+            // NSLog(@"[DEBUG] Ad Instance: %@", instance);
         }
     }
     @catch (NSException *exception) {
-        NSLog(@"[ERROR] Issue parsing slot data (most likely companion): %@", exception);
+        // NSLog(@"[ERROR] Issue parsing slot data (most likely companion): %@", exception);
     }
             
     if ([self _hasListeners:@"onslotstarted"]) {
@@ -304,7 +304,7 @@
                                                      nil] autorelease]];   
     }
         
-    NSLog(@"[DEBUG] Companion Base Subview Count: %d", [[[currentCompanionBase view] subviews] count]); // just checking to see if the slotBase is being removed correctly
+    // NSLog(@"[DEBUG] Companion Base Subview Count: %d", [[[currentCompanionBase view] subviews] count]); // just checking to see if the slotBase is being removed correctly
 
     [ads release];
 }
@@ -357,7 +357,7 @@
 {
     ENSURE_UI_THREAD_0_ARGS;
     
-    NSLog(@"[DEBUG] Releasing ad context");
+    // NSLog(@"[DEBUG] Releasing ad context");
     
     for (id<FWSlot> slot in [adContext siteSectionNonTemporalSlots]) {
 		[slot stop];
@@ -376,7 +376,7 @@
     ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
 	ENSURE_UI_THREAD_1_ARG(args);
     
-    NSLog(@"[DEBUG] Playing ads");
+    // NSLog(@"[DEBUG] Playing ads");
         
     for (id<FWSlot> slot in [adContext temporalSlots]) {
         if ([slot timePosition] == [[args objectForKey:@"time"] longLongValue]) {

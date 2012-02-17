@@ -16,6 +16,7 @@
     NSString *currentVideoId;
     NSString *currentFallbackId;
     NSString *currentProfile;
+    NSString *currentSlotID;
     NSURL *currentContentUrl; // video content url used after slots are finished
     MPMoviePlayerController *currentPlayer; // video player that is rendering content
     TiViewProxy *currentBase; // used to attach FW views

@@ -272,6 +272,8 @@
     }
 
     NSMutableArray *ads = [[NSMutableArray alloc] init];
+    
+    currentSlotID = [[notification userInfo] objectForKey:FW_INFO_KEY_CUSTOM_ID];
         
     @try {
         for (id<FWAdInstance> instance in [[adContext getSlotByCustomId:[[notification userInfo] objectForKey:FW_INFO_KEY_CUSTOM_ID]] adInstances]) {
@@ -316,6 +318,17 @@
     if ([self _hasListeners:@"onslotended"]) {
         [self fireEvent:@"onslotended" withObject:[notification userInfo]];
     }    
+- (void)processClick:(id)args
+{
+    ENSURE_UI_THREAD_0_ARGS;
+    
+    // NSLog(@"[DEBUG] Clicked an ad.");    
+    
+    for (id<FWAdInstance> instance in [[adContext getSlotByCustomId:currentSlotID] adInstances]) {
+        // NSLog(@"[DEBUG] %@", instance);
+
+        [[instance rendererController] processEvent:FW_EVENT_AD_CLICK info:nil];
+    }
 }
 
 - (void)destroyContext:(id)args

@@ -125,7 +125,7 @@
     
     NSLog(@"[DEBUG] Created ad context and submitting request");
     
-    [adContext submitRequest:2];  
+    [adContext submitRequest:6];
 }
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation

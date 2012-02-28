@@ -114,6 +114,7 @@
     [adContext setParameter:FW_PARAMETER_COUNTDOWN_TIMER_BG_COLOR withValue:@"0x000000" forLevel:FW_PARAMETER_LEVEL_OVERRIDE];
     [adContext setParameter:FW_PARAMETER_COUNTDOWN_TIMER_ALPHA withValue:@"1.0" forLevel:FW_PARAMETER_LEVEL_OVERRIDE];
     [adContext setParameter:FW_PARAMETER_COUNTDOWN_TIMER_TEXT_SIZE withValue:@"small" forLevel:FW_PARAMETER_LEVEL_OVERRIDE];
+    [adContext setParameter:FW_PARAMETER_VIDEO_AD_USE_APPLICATION_AUDIO_SESSION withValue:@"YES" forLevel:FW_PARAMETER_LEVEL_GLOBAL];
     // [adContext setParameter:FW_PARAMETER_CLICK_DETECTION withValue:@"NO" forLevel:FW_PARAMETER_LEVEL_OVERRIDE];
     
     [adContext addVideoPlayerNonTemporalSlot:[NSString stringWithFormat:@"%c%c%c", (char)(65 + (arc4random() % 25)), (char)(48 + (arc4random() % 9)), (char)(65 + (arc4random() % 25))] :nil :300 :50 :nil :YES :FW_SLOT_OPTION_INITIAL_AD_STAND_ALONE :nil :nil :nil];

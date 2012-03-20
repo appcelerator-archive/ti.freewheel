@@ -400,12 +400,12 @@
     
     // NSLog(@"[DEBUG] Attempting to pause ads.");
     
-    // only works with 4.6.0 of AdManager (this should really be called skipCurrentAd, but don't expect to keep this workaround for long)
-    // if ([[adContext getSlotByCustomId:currentSlotID] respondsToSelector:@selector(pause)]) {
-    //     [[adContext getSlotByCustomId:currentSlotID] performSelector:@selector(pause)];
-    // }
+    if ([[adContext getSlotByCustomId:currentSlotID] respondsToSelector:@selector(pause)]) {
+        [[adContext getSlotByCustomId:currentSlotID] performSelector:@selector(pause)];
+    }
     
-    [[adContext getSlotByCustomId:currentSlotID] stop];
+    // Used in 4.4.0 and earlier.
+    // [[adContext getSlotByCustomId:currentSlotID] stop];
     // [currentPlayer pause];    
 }
 
@@ -415,10 +415,9 @@
     
     // NSLog(@"[DEBUG] Attempting to resume ads.");
     
-    // only works with 4.6.0 of AdManager
-    // if ([[adContext getSlotByCustomId:currentSlotID] respondsToSelector:@selector(resume)]) {
-    //    [[adContext getSlotByCustomId:currentSlotID] performSelector:@selector(resume)];
-    // }
+    if ([[adContext getSlotByCustomId:currentSlotID] respondsToSelector:@selector(resume)]) {
+        [[adContext getSlotByCustomId:currentSlotID] performSelector:@selector(resume)];
+    }
 }
 
 - (void)playAds:(id)args

@@ -245,9 +245,10 @@
 
 - (void)onAdOpen:(NSNotification*)notification
 {
-    if ([self _hasListeners:@"onadopen"]) {
-        [self fireEvent:@"onadopen" withObject:[notification userInfo]];
-    }
+    // This causes an selector exception. Disabling as it's not currently needed.
+    // if ([self _hasListeners:@"onadopen"]) {
+    //    [self fireEvent:@"onadopen" withObject:[notification userInfo]];
+    // }
 }
 
 - (void)onContentVideoPauseRequest:(NSNotification*)notification

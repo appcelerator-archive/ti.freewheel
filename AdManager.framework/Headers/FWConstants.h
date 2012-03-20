@@ -12,13 +12,6 @@
 #define FW_PRIVATE_EXTERN   __private_extern__
 #endif
 
-#define FW_LINK_RENDERER(r) \
-@class r; \
-extern void FWAdManager_Force_Link_##r (void) __attribute__ ((constructor)); \
-void FWAdManager_Force_Link_##r (void) { \
-NSLog(@"AdManager: registering renderer class: %@", [r description]); \
-}
-
 #endif
 
 typedef enum {

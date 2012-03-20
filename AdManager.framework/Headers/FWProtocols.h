@@ -318,10 +318,10 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 /**
  *	Set the video play status
  *	\param	videoState	the type of the state, should be one of:
- *		-	FW_VIDEO_STATUS_PLAYING
- *		-	FW_VIDEO_STATUS_PAUSED
- *		-	FW_VIDEO_STATUS_STOPPED
- *		-	FW_VIDEO_STATUS_COMPLETED
+ *		-	FW_VIDEO_STATE_PLAYING
+ *		-	FW_VIDEO_STATE_PAUSED
+ *		-	FW_VIDEO_STATE_STOPPED
+ *		-	FW_VIDEO_STATE_COMPLETED
  */
 - (void)setVideoState:(FWVideoState)videoState;
 
@@ -697,7 +697,7 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 /**
  * Get all creative renditions of the ad instance
  */
-- (NSArray*/*id<FWCreativeRendition>*/)creativeRenditions;
+- (NSArray* /*id<FWCreativeRendition>*/)creativeRenditions;
 
 /**
  * Set the primary creative rendition
@@ -1055,7 +1055,8 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (void)stop;
 
 /**
- *	Get module info. The returned dictionary should contain key FW_INFO_KEY_MODULE_TYPE with FW_MODULE_TYPE_* value.
+ *	Get module info. The returned dictionary should contain key FW_INFO_KEY_MODULE_TYPE with FW_MODULE_TYPE_* value,
+ *  and should contain key FW_INFO_KEY_REQUIRED_API_VERSION with the FreeWheel RDK version when the component compiled.
  */
 - (NSDictionary *)moduleInfo;
 

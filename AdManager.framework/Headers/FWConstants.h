@@ -12,6 +12,13 @@
 #define FW_PRIVATE_EXTERN   __private_extern__
 #endif
 
+#define FW_LINK_RENDERER(r) \
+@class r; \
+extern void FWAdManager_Force_Link_##r (void) __attribute__ ((constructor)); \
+void FWAdManager_Force_Link_##r (void) { \
+NSLog(@"AdManager: registering renderer class: %@", [r description]); \
+}
+
 #endif
 
 typedef enum {
@@ -677,6 +684,13 @@ FW_EXTERN NSString *const FW_INFO_KEY_CUSTOM_ID;
 FW_EXTERN NSString *const FW_INFO_KEY_MODULE_TYPE;
 
 /**
+ *  Key of the dictionary returned by =[FWRenderer moduleInfo]. 
+ *  optional, if present, its value should be the lowest SDK API version the renderer can compatible
+ *  e.g. 0x02060000 for v2.6
+ */
+FW_EXTERN NSString *const FW_INFO_KEY_REQUIRED_API_VERSION;
+
+/**
  *  Value for key FW_INFO_KEY_MODULE_TYPE 
  */
 FW_EXTERN NSString *const FW_MODULE_TYPE_RENDERER;
@@ -737,11 +751,6 @@ FW_EXTERN NSString *const FW_ERROR_MISSING_PARAMETER;
 /**
  *  Value for key FW_INFO_KEY_ERROR_CODE
  */
-FW_EXTERN NSString *const FW_ERROR_MISSING_LIB;
-
-/**
- *  Value for key FW_INFO_KEY_ERROR_CODE
- */
 FW_EXTERN NSString *const FW_ERROR_NO_AD_AVAILABLE;
 
 /**
@@ -775,6 +784,11 @@ FW_EXTERN NSString *const FW_ERROR_IN_APP_VIEW;
 FW_EXTERN NSString *const FW_ERROR_3P_COMPONENT;
 
 /**
+ *  Value for key FW_ERROR_UNSUPPORTED_3P_FEATURE
+ */
+FW_EXTERN NSString *const FW_ERROR_UNSUPPORTED_3P_FEATURE;
+
+/**
  *  Key of the details dictionary passed to -[FWRendererController processEvent::]. Its value is the custom event name to be processed.
  */
 FW_EXTERN NSString *const FW_INFO_KEY_CUSTOM_EVENT_NAME; 
@@ -795,47 +809,47 @@ FW_EXTERN NSString *const FW_INFO_KEY_VIDEO_DISPLAY_BASE;
 FW_EXTERN NSString *const FW_PARAMETER_POSTAL_CODE;
 
 /**
- *  Specify the area code of the user's phone for targeting passthrough to 3rd party componenet.
+ *  Specify the area code of the user's phone for targeting passthrough to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_AREA_CODE;
 
 /**
- *  Specify the user’s date of birth for targeting passthrough to 3rd party component.
+ *  Specify the user's date of birth for targeting passthrough to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_DATE_OF_BIRTH;
 
 /**
- *  Specify the user’s gender for targeting passthrough to 3rd party componenet.
+ *  Specify the user's gender for targeting passthrough to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_GENDER;
 
 /**
- *  Specify a list of keywords for targeting passthrough to 3rd party componenet.
+ *  Specify a list of keywords for targeting passthrough to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_KEYWORDS;
 
 /**
- *  Specify the area code of the user’s phone for targeting passthrough to 3rd party componenet.
+ *  Specify the area code of the user’s phone for targeting passthrough to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_SEARCH_STRING;
 
 /**
- *  Specify the user’s marital status for targeting passthrough to 3rd party componenet.
+ *  Specify the user's marital status for targeting passthrough to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_MARITAL;
 
 /**
- *  Specify the user’s enthnicity for targeting passthrough to 3rd party componenet.
+ *  Specify the user's ethnicity for targeting passthrough to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_ETHNICITY;
 
 /**
- *  Specify the user’s orientation for targeting passthrough to 3rd party componenet.
+ *  Specify the user's orientation for targeting passthrough to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_ORIENTATION;
 
 /**
- *  Specify the user’s income for targeting passthrough to 3rd party componenet.
+ *  Specify the user's income for targeting passthrough to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_INCOME;
 
@@ -851,3 +865,15 @@ FW_EXTERN NSString *const FW_PARAMETER_CLICK_DETECTION;
  *  The value is used to select best creative rendition.\n
  */
 FW_EXTERN NSString *const FW_PARAMETER_DESIRED_BITRATE;
+
+/**
+ *  The key of available desired orientation of rendition selection algorithm. It only takes effect in full screen mode.\n 
+ *  The value of this property is a NSString.\n
+ *  <ul><li>If it is not set, the application status bar orientation is used.
+ *  	<li>It can be set to one of \@\"portrait\" and \@\"landscape\".
+ *  	<ul><li> If it is set to \@\"portrait\", the smaller of UIScreen width and height will be selected as width and the bigger of UIScreen width and height will be selected as height.
+ *          <li> The \@\"landscape\" is opposite to \@\"portrait\".
+ *      </ul>
+ *  </ul>    
+ */
+FW_EXTERN NSString *const FW_PARAMETER_DESIRED_ORIENTATION;

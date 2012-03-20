@@ -6,7 +6,8 @@
 {
     CLLocation *location = [[CLLocation alloc] initWithLatitude:42 longitude:-50];
     [[self delegate] locationManager:self didUpdateToLocation:location fromLocation:nil]; 
-    [location release];
+    
+    RELEASE_TO_NIL(location);
 }
 
 - (void)startUpdatingLocation
@@ -79,7 +80,6 @@
     currentFallbackId = [args objectForKey:@"fallbackId"];
     currentBase = [args objectForKey:@"base"];
     currentCompanionBase = [args objectForKey:@"companionBase"];
-    TiMediaVideoPlayerProxy *videoPlayer = [args objectForKey:@"player"];
     currentSiteSection = [args objectForKey:@"siteSection"];
     currentVideoId = [args objectForKey:@"videoId"];
     currentProfile = [args objectForKey:@"profile"];
@@ -91,17 +91,19 @@
     
     [self setCurrentController:[[TiApp app] controller]];
              
-    currentPlayer = [videoPlayer player]; // we do get access to this, even though xcode is complaining
-    [currentPlayer retain];
+    currentPlayer = [[args objectForKey:@"player"] player]; // we do get access to this, even though xcode is complaining
+    
     // NSLog(@"currentPlayer: %@", currentPlayer);
     
     // NSLog(@"[DEBUG] Set current player and created ad context");
-    
+        
     [self createAdContext];
 }
 
 - (void)createAdContext
 {        
+    contextDestroyed = NO;
+    
     adContext = [adManager newContext];
         
     WARN_IF_BACKGROUND_THREAD_OBJ;
@@ -167,7 +169,7 @@
         NSMutableArray *prerollSlots = [[NSMutableArray alloc] init];
         NSMutableArray *midrollSlots = [[NSMutableArray alloc] init];
         NSMutableArray *postrollSlots = [[NSMutableArray alloc] init];
-        NSDictionary *adPositions;
+        NSDictionary *adPositions = nil;
         
         for (id<FWSlot> temporalSlot in [adContext temporalSlots]) {
             // NSLog(@"Time Position: %f", [temporalSlot timePosition]);
@@ -224,10 +226,10 @@
             [self fireEvent:@"onadresponse" withObject:adPositions];
         }
         
-        [prerollSlots release];
-        [midrollSlots release];
-        [postrollSlots release];
-        [adPositions release];
+        RELEASE_TO_NIL(prerollSlots);
+        RELEASE_TO_NIL(midrollSlots);
+        RELEASE_TO_NIL(postrollSlots);
+        RELEASE_TO_NIL(adPositions);
     }
 }
 
@@ -307,7 +309,7 @@
         
     // NSLog(@"[DEBUG] Companion Base Subview Count: %d", [[[currentCompanionBase view] subviews] count]); // just checking to see if the slotBase is being removed correctly
 
-    [ads release];
+    RELEASE_TO_NIL(ads);
 }
 
 - (void)onAdSlotEnded:(NSNotification *)notification
@@ -332,13 +334,13 @@
             type = @"unknown";
     }
     
-    if ([self _hasListeners:@"onslotended"]) {
+    if ([self _hasListeners:@"onslotended"] && !contextDestroyed) {
         [self fireEvent:@"onslotended" withObject:[[[NSDictionary alloc] initWithObjectsAndKeys:
                                                    type, @"adType",
                                                    nil] autorelease]];
     }
     
-    [type release];
+    RELEASE_TO_NIL(type);
 }
 
 - (void)processClick:(id)args
@@ -348,8 +350,6 @@
     // NSLog(@"[DEBUG] Clicked an ad.");    
     
     for (id<FWAdInstance> instance in [[adContext getSlotByCustomId:currentSlotID] adInstances]) {
-        // NSLog(@"[DEBUG] %@", instance);
-
         [[instance rendererController] processEvent:FW_EVENT_AD_CLICK info:nil];
     }
 }
@@ -360,16 +360,64 @@
     
     // NSLog(@"[DEBUG] Releasing ad context");
     
-    for (id<FWSlot> slot in [adContext siteSectionNonTemporalSlots]) {
-		[slot stop];
-		[[slot slotBase] removeFromSuperview];
-	}
+    if (adContext) {
+        contextDestroyed = YES;
+        
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:FW_NOTIFICATION_SLOT_STARTED object:adContext];
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:FW_NOTIFICATION_SLOT_ENDED object:adContext];
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:FW_NOTIFICATION_CONTENT_PAUSE_REQUEST object:nil];
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:FW_NOTIFICATION_CONTENT_RESUME_REQUEST object:nil];
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:FW_NOTIFICATION_IN_APP_VIEW_OPEN object:nil];
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:FW_NOTIFICATION_VIDEO_DISPLAY_BASE_FRAME_CHANGED object:nil];
+        
+        for (id<FWSlot> slot in [adContext siteSectionNonTemporalSlots]) {
+            [slot stop];
+            [[slot slotBase] removeFromSuperview];
+        }
+        
+        for (id<FWSlot> slot in [adContext temporalSlots]) {
+            [slot stop];
+        }
+        
+        RELEASE_TO_NIL(adContext);
+        RELEASE_TO_NIL(currentPlayer);
+
+        currentVideoId = nil;
+        currentSiteSection = nil;
+        currentFallbackId = nil;
+        currentProfile = nil;
+        currentSlotID = nil;
+        currentContentUrl = nil;
+        currentBase = nil;
+        currentCompanionBase = nil;
+    }
+}
+
+- (void)pauseAds:(id)args
+{
+    ENSURE_UI_THREAD_0_ARGS;
     
-	for (id<FWSlot> slot in [adContext temporalSlots]) {
-		[slot stop];
-	}
+    // NSLog(@"[DEBUG] Attempting to pause ads.");
     
-    [adContext release];
+    // only works with 4.6.0 of AdManager (this should really be called skipCurrentAd, but don't expect to keep this workaround for long)
+    // if ([[adContext getSlotByCustomId:currentSlotID] respondsToSelector:@selector(pause)]) {
+    //     [[adContext getSlotByCustomId:currentSlotID] performSelector:@selector(pause)];
+    // }
+    
+    [[adContext getSlotByCustomId:currentSlotID] stop];
+    // [currentPlayer pause];    
+}
+
+- (void)resumeAds:(id)args
+{
+    ENSURE_UI_THREAD_0_ARGS;
+    
+    // NSLog(@"[DEBUG] Attempting to resume ads.");
+    
+    // only works with 4.6.0 of AdManager
+    // if ([[adContext getSlotByCustomId:currentSlotID] respondsToSelector:@selector(resume)]) {
+    //    [[adContext getSlotByCustomId:currentSlotID] performSelector:@selector(resume)];
+    // }
 }
 
 - (void)playAds:(id)args

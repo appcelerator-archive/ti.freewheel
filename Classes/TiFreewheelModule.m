@@ -91,7 +91,7 @@
 {
     TiFreewheelAdManagerProxy *proxy = [[[TiFreewheelAdManagerProxy alloc] _initWithPageContext:[self pageContext] args:args] autorelease];
     
-    return proxy;
+    return [proxy autorelease];
 }
 
 @end

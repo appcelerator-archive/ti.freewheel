@@ -7,7 +7,6 @@
 #import "TiFreewheelCompanionView.h"
 
 @interface TiFreewheelAdManagerProxy : TiProxy <CLLocationManagerDelegate> {
-    TiProxy *proxy; // proxy that is returned
     NSDictionary *managerProperties;
     CLLocationManager *locationManager;
     NSString *networkId;
@@ -22,6 +21,7 @@
     TiViewProxy *currentBase; // used to attach FW views
     TiViewProxy *currentCompanionBase; // used to attach companion ad
     BOOL processCompanion;
+    BOOL contextDestroyed;
     id<FWAdManager> adManager;
     id<FWContext> adContext;
 }

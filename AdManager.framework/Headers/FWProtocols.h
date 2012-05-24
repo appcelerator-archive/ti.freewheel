@@ -29,6 +29,7 @@ FW_EXTERN id<FWAdManager> newAdManager(void);
  *	\param value
  *		-	FW_LOG_LEVEL_INFO	Default value
  *		-	FW_LOG_LEVEL_QUIET
+ *		-	FW_LOG_LEVEL_VERBOSE	force the verbose log in both debug & release version
  */
 FW_EXTERN void FWSetLogLevel(FWLogLevel value);
 
@@ -119,8 +120,6 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
  *		-	-[FWContext setRequestDuration:]
  *		-	-[FWContext setVideoDisplayCompatibleSizes:]
  *		-	-[FWContext setVideoState:]
- *		-	-[FWContext setNotificationCenter:]
- *		-	-[FWContext setMoviePlayerController:]
  *		-	-[FWContext setMoviePlayerFullscreen:]
  *
  *	Following methods are REQUIRED to call again on the new context:
@@ -129,8 +128,12 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
  *		
  */
 - (id<FWContext>)newContextWithContext:(id<FWContext>)context;
-@end
 
+/**
+ *	By default AdManager will send report to AdServer when crash, this API will disable the function
+ */
+- (void)disableFWCrashReporter;
+@end
 
 /**
  *	Protocol for AdManager context
@@ -144,14 +147,6 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (void)setVideoDisplayBase:(UIView *)value;
 
 /**
- *	Set the main video's movie player controller for rendering video ad.
- *
- *	\param	value	the player which plays main video
- *
- */
-- (void)setMoviePlayerController:(MPMoviePlayerController *)value;
-
-/**
  *	Set the main video's movie player fullscreen mode for rendering video ad.
  *	If application sets main video's MPMoviePlayerController fullscreen as YES or 
  *	present MPMoviePlayerViewController as a modal view, this value should be
@@ -162,6 +157,13 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
  *	Availability: iOS >= 3.2 
  */
 - (void)setMoviePlayerFullscreen:(BOOL)value;
+
+/**
+ *	Deprecated!
+ *	Please use setVideoDisplayBase: to set a UIView for temporal ad to display
+ *	Or use setMoviePlayerFullscreen: if contentVideo always play in fullscreen mode
+ */
+- (void)setMoviePlayerController:(MPMoviePlayerController *)value;
 
 /**
  *	Set the capabilities supported by the player
@@ -359,8 +361,7 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 
 /**
  *	Set a nofication center which will receive notifiations published from AdManager.
- *	If this method is not applied, player can receive notifications with [NSNotificationCenter defaultCenter] from AdManager.
- *	For FW_NOTIFICATION_REQUEST_COMPLETE, if request fails, [notification userInfo] dictionary will contain an error object.
+ *	Deprecated
  */
 - (void)setNotificationCenter:(NSNotificationCenter *)nc;
 
@@ -451,9 +452,17 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (id<FWAdManager>)getAdManager;
 
 /**
- *	Return the nofication center object passed to id<FWContext>#setNotificationCenter:(NSNotificationCenter *), or [NSNotificationCenter defaultCenter]
+ *	Return the object [NSNotificationCenter defaultCenter]
  */
 - (NSNotificationCenter *)notificationCenter;
+
+/**
+ *	Notify user actions to FW when the users actions happend in vide player side.
+ *	\param	userAction		user actions, must be one of:
+ *							- FW_USER_ACTION_PAUSE_BUTTON_CLICKED
+ *							- FW_USER_ACTION_RESUME_BUTTON_CLICKED
+ */
+- (void)notifyUserAction:(FWUserAction)userAction;
 @end
 
 
@@ -501,16 +510,16 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (NSArray * /* <id>FWAdInstance */)adInstances;
 
 /**
- *	Get width of the slot
+ *	Get the width of the slot in pixels as returned in ad response.
  *	\return Width in pixels
  */
-- (NSUInteger)width;
+- (NSInteger)width;
 
 /**
- *	Get height of the slot
+ *	Get the height of the slot in pixels as returned in ad response.
  *	\return Height in pixels
  */
-- (NSUInteger)height;
+- (NSInteger)height;
 
 /**
  *	Process slot event
@@ -540,15 +549,14 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (BOOL)visible;
 
 /**
- *	Set the visibility for nontemporal slot. 
+ *	Set the visibility for a nontemporal slot. 
  *
- *	If a nontemporal slot base view is not visible on screen when playing the slot, 
- *	user should invoke setVisible(NO) before invoke play(). At the momement, ad impression does not send.
- *
- *	Once the nontemporal slot base view is visible on screen, user should invoke setVisible(YES) to send ad impression.
+ *	If a nontemporal slot view should not be visible, call setVisible:NO before the slot starts. In this case there will be no impression sent to FreeWheel ad server, even if [slot play] has already been called. 
+ *  If a nontemporal slot has started([slot play] has been called) when it has been set invisible, calling setVisible:YES will display the slot and send an impression.
  *
  *	Note:
- *		Calling this method for temporal slot or after invoking play() have no effect.
+ *		This method has no effect on temporal slots.
+ *      This method has no effect anymore if an impression has been sent.
  *
  *  \param  value	YES or NO
  */
@@ -562,26 +570,29 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (UIView *)slotBase;
 
 /**
- *	Set the parameters at slot level
- *	\param	name	key of the parameter to be set
- *	\param	value	value for the key
+ *	Set a parameter for the slot on the slot level
+ *	\param	name	name of the parameter to be set
+ *	\param	value	value for the parameter
  */
 - (void)setParameter:(NSString *)name withValue:(id)value;
 
 /**
- *	Retrieve a parameter
- *  \param  name  The name of the parameter need to retrieve
+ *	Get the value of a parameter by its name
+ *  \param  name    Parameter name
+ *  \return value of the parameter
  */
 - (id)getParameter:(NSString *)name;
 
-/**
- *	Get the total duration of all the ads
- */
+/** 
+ *  Get the duration of the slot
+ *  \return the duration in seconds, greater than or equal to 0 
+ */  
 - (NSTimeInterval)totalDuration;
 
-/**
- *	Get current playback time of the slot
- */
+/** 
+ *  Get the playhead time of the slot
+ *  \return the playhead time in seconds, greater than or equal to 0
+ */  
 - (NSTimeInterval)playheadTime;
 
 /**
@@ -689,7 +700,7 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 
 
 /**
- *	Get the companion slots of the ad instance
+ *	Get the companion slots which are able to schedule companion
  * \return an array of id<FWSlot>
  */
 - (NSArray *)companionSlots;
@@ -928,10 +939,7 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (UIViewController *)currentViewController;
 
 /**
- *	Return the main video's MPMoviePlayerController object. Player sets it via -[FWContext setMoviePlayerController:].
- *	Video ad renderer renderers upon it.
- *
- *	Availability: iOS >= 3.2 
+ *	deprecated, use [slot slotBase] to determine where to display the ad.
  */
 - (MPMoviePlayerController *)moviePlayerController;
 
@@ -945,7 +953,7 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 /**
  *	Process renderer event
  *	\param	eventName Event to be processed, one of FW_EVENT_AD_* in FWConstants.h
- *  \param  details  The addtional infomation need to be processed by AdManager. Available keys:
+ *  \param  details  The sl infomation need to be processed by AdManager. Available keys:
  * 					- FW_INFO_KEY_CUSTOM_EVENT_NAME Optional. 
  * 					When eventName is FW_EVENT_AD_CLICK, renderer tells the custom click event to be processed via this key.
  * 					- FW_INFO_KEY_SHOW_BROWSER Optional. 
@@ -1062,13 +1070,15 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 
 
 /**
- *	Get the ad duration
+ *	Get duration of the ad
+ *      \return a number in seconds, which is greater than or equal to 0, but if not available return -1
  */
 - (NSTimeInterval)duration;
 
-/**
- *	Get the ad current playback time
- */
+/** 
+ *	Get playheadTime of the ad
+ * 	\return a number in seconds, which is greater than or equal to 0, but if not available return -1
+ */  
 - (NSTimeInterval)playheadTime;
 @end
 

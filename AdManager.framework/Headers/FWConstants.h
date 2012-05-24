@@ -5,10 +5,10 @@
 
 #ifndef FW_EXTERN
 #ifdef __cplusplus
-#define FW_EXTERN           extern "C"
+#define FW_EXTERN			extern "C"
 #define FW_PRIVATE_EXTERN   __private_extern__
 #else
-#define FW_EXTERN           extern
+#define FW_EXTERN			extern
 #define FW_PRIVATE_EXTERN   __private_extern__
 #endif
 
@@ -16,14 +16,17 @@
 @class r; \
 extern void FWAdManager_Force_Link_##r (void) __attribute__ ((constructor)); \
 void FWAdManager_Force_Link_##r (void) { \
+NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init]; \
 NSLog(@"AdManager: registering renderer class: %@", [r description]); \
+[pool release]; \
 }
 
 #endif
 
 typedef enum {
-	FW_LOG_LEVEL_QUIET						=	0,
-	FW_LOG_LEVEL_INFO
+	FW_LOG_LEVEL_QUIET		=	0,
+	FW_LOG_LEVEL_INFO		=	3,
+	FW_LOG_LEVEL_VERBOSE	=	5
 } FWLogLevel;
 
 /**
@@ -91,7 +94,9 @@ typedef enum {
 	/** Time position class type: overlay */
 	FW_TIME_POSITION_CLASS_OVERLAY				=	4,
 	/** Time position class type: display */
-	FW_TIME_POSITION_CLASS_DISPLAY				=	5
+	FW_TIME_POSITION_CLASS_DISPLAY				=	5,
+	/** Time position class type: pause_midroll */
+	FW_TIME_POSITION_CLASS_PAUSE_MIDROLL 		= 	6
 } FWTimePositionClass;
 
 /**
@@ -160,7 +165,6 @@ typedef enum {
  * Enumeration of video asset auto play types
  */
 typedef enum {
-    
 	/** Video Asset auto play type none */
 	FW_VIDEO_ASSET_AUTO_PLAY_TYPE_NONE	= 0,
 	/** Video Asset auto play type attended*/
@@ -168,6 +172,16 @@ typedef enum {
 	/** Video Asset auto play type unattended */
 	FW_VIDEO_ASSET_AUTO_PLAY_TYPE_UNATTENDED =	2
 } FWVideoAssetAutoPlayType;
+
+/**
+ * Enumeration of user action types
+ */
+typedef enum {
+	/** Usera action when video player pause button is clicked */
+	FW_USER_ACTION_PAUSE_BUTTON_CLICKED = 0,
+	/** Usera action when video player resume button is clicked */
+	FW_USER_ACTION_RESUME_BUTTON_CLICKED = 1
+} FWUserAction;
 
 /** 
  *	AdManager publishes notification of this topic after ad request completed with info:
@@ -213,6 +227,34 @@ FW_EXTERN NSString *const FW_NOTIFICATION_CONTENT_PAUSE_REQUEST;
  */
 FW_EXTERN NSString *const FW_NOTIFICATION_CONTENT_RESUME_REQUEST;
 
+/**
+ *  AdManager publishes notification of this topic when ad_impression is sent successfully
+ */ 
+FW_EXTERN NSString *const FW_NOTIFICATION_AD_IMPRESSION;
+
+/**
+ *  AdManager publishes notification of this topic when ad_impression_end is sent successfully
+ */ 
+FW_EXTERN NSString *const FW_NOTIFICATION_AD_IMPRESSION_END;
+
+/**
+ *  AdManager publishes notification of this topic when ad gets an error and fails
+ */ 
+FW_EXTERN NSString *const FW_NOTIFICATION_AD_ERROR;
+
+
+FW_EXTERN NSString *const FW_NOTIFICATION_USER_ACTION_NOTIFIED;
+
+/**
+ *  Renderer should publishes notification of this topic before the ad expand to fullscreen
+ */
+FW_EXTERN NSString *const FW_NOTIFICATION_AD_EXPAND_TO_FULLSCREEN;
+
+/**
+ *  Renderer should publishes notification of this topic after the ad collapse from fullscreen
+ */
+FW_EXTERN NSString *const FW_NOTIFICATION_AD_COLLAPSE_FROM_FULLSCREEN;
+
 
 /** 
  *	Player sends notification of this topic after video display base is changed by setVideoDisplayBase
@@ -226,8 +268,6 @@ FW_PRIVATE_EXTERN NSString *FW_NOTIFICATION_VIDEO_DISPLAY_BASE_CHANGED;
  */
 FW_PRIVATE_EXTERN NSString *FW_NOTIFICATION_VIDEO_DISPLAY_BASE_FRAME_CHANGED;
 
-
-
 /**
  * Predefined ad unit: preroll
  *
@@ -237,6 +277,7 @@ FW_PRIVATE_EXTERN NSString *FW_NOTIFICATION_VIDEO_DISPLAY_BASE_FRAME_CHANGED;
  *	- FW_ADUNIT_OVERLAY
  *  - FW_ADUNIT_STREAM_PREROLL
  *  - FW_ADUNIT_STREAM_POSTROLL
+ *  - FW_ADUNIT_PAUSE_MIDROLL
  */
 FW_EXTERN NSString *const FW_ADUNIT_PREROLL; 
 
@@ -249,6 +290,7 @@ FW_EXTERN NSString *const FW_ADUNIT_PREROLL;
  *	- FW_ADUNIT_OVERLAY
  *  - FW_ADUNIT_STREAM_PREROLL
  *  - FW_ADUNIT_STREAM_POSTROLL
+ *  - FW_ADUNIT_PAUSE_MIDROLL
  */
 FW_EXTERN NSString *const FW_ADUNIT_MIDROLL; 
 
@@ -261,6 +303,7 @@ FW_EXTERN NSString *const FW_ADUNIT_MIDROLL;
  *	- FW_ADUNIT_OVERLAY
  *  - FW_ADUNIT_STREAM_PREROLL
  *  - FW_ADUNIT_STREAM_POSTROLL
+ *  - FW_ADUNIT_PAUSE_MIDROLL
  */
 FW_EXTERN NSString *const FW_ADUNIT_POSTROLL; 
 
@@ -273,8 +316,23 @@ FW_EXTERN NSString *const FW_ADUNIT_POSTROLL;
  *	- FW_ADUNIT_POSTROLL
  *  - FW_ADUNIT_STREAM_PREROLL
  *  - FW_ADUNIT_STREAM_POSTROLL
+ *  - FW_ADUNIT_PAUSE_MIDROLL
  */
 FW_EXTERN NSString *const FW_ADUNIT_OVERLAY;
+
+
+/**
+ * Predefined ad unit: overlay
+ *
+ * See Also:
+ *	- FW_ADUNIT_PREROLL
+ *	- FW_ADUNIT_MIDROLL
+ *	- FW_ADUNIT_POSTROLL
+ *	- FW_ADUNIT_OVERLAY
+ *  - FW_ADUNIT_STREAM_PREROLL
+ *  - FW_ADUNIT_STREAM_POSTROLL
+ */
+FW_EXTERN NSString *const FW_ADUNIT_PAUSE_MIDROLL;
 
 /**
  *	Predefined ad unit: preroll of a STREAM
@@ -285,6 +343,7 @@ FW_EXTERN NSString *const FW_ADUNIT_OVERLAY;
  *	- FW_ADUNIT_POSTROLL
  *	- FW_ADUNIT_OVERLAY
  *  - FW_ADUNIT_STREAM_POSTROLL
+ *  - FW_ADUNIT_PAUSE_MIDROLL
  */
 FW_EXTERN NSString *const FW_ADUNIT_STREAM_PREROLL;
 
@@ -297,6 +356,7 @@ FW_EXTERN NSString *const FW_ADUNIT_STREAM_PREROLL;
  *	- FW_ADUNIT_POSTROLL
  *	- FW_ADUNIT_OVERLAY
  *  - FW_ADUNIT_STREAM_PREROLL
+ *  - FW_ADUNIT_PAUSE_MIDROLL
  */
 FW_EXTERN NSString *const FW_ADUNIT_STREAM_POSTROLL;
 
@@ -362,9 +422,9 @@ FW_EXTERN NSString *const FW_CAPABILITY_SYNC_MULTI_REQUESTS;
 /**
  *	Reset the exclusivity scope. Player can turn on/off this capability before making any request.
  *	
- *	    Notes:
- *	      Once you turn this capability ON, all following requests will carry this signal and reset the exclusivity scope.
- *	      So make sure to turn it off when exclusivity scope has been reset (the request has been submit).
+ *	Notes:
+ *		Once you turn this capability ON, all following requests will carry this signal and reset the exclusivity scope.
+ *		So make sure to turn it off when exclusivity scope has been reset (the request has been submit).
  */
 FW_EXTERN NSString *const FW_CAPABILITY_RESET_EXCLUSIVITY;
 
@@ -389,10 +449,17 @@ FW_EXTERN NSString *const FW_CAPABILITY_MULTIPLE_CREATIVE_RENDITIONS;
  */
 FW_EXTERN NSString *const FW_EVENT_SLOT_IMPRESSION;
 
+FW_EXTERN NSString *const FW_EVENT_SLOT_IMPRESSION_END;
+
 /**
  *	Event name: ad impression
  */
 FW_EXTERN NSString *const FW_EVENT_AD_IMPRESSION;
+
+/**
+ * 	Event name: ad impression end
+ */
+FW_EXTERN NSString *const FW_EVENT_AD_IMPRESSION_END;
 
 /**
  *	Event name: ad quartile
@@ -505,24 +572,19 @@ FW_EXTERN NSString *const FW_EVENT_TYPE_CLICK;
 FW_EXTERN NSString *const FW_EVENT_TYPE_STANDARD;
 
 /**
+ * Event name: pause button clicked. Dispatched by video player when pause button is clicked.
+ */ 
+FW_EXTERN NSString *const FW_EVENT_PAUSE_BUTTON_CLICKED;
+
+/**
+ * Event name: resume button clicked. Dispatched by video player when resume button is clicked.
+ */ 
+FW_EXTERN NSString *const FW_EVENT_RESUME_BUTTON_CLCKED;
+
+/**
  *  The way of opening http(s) url: inside app or by external app. NSString "YES, NO" are valid. By default, it is YES.
  */
 FW_EXTERN NSString *const FW_PARAMETER_OPEN_IN_APP;
-
-/**
- *  The key of defaultClickFWViewWidth parameter, this parameter can only be set before the slot play, otherwise no effect
- */
-FW_EXTERN NSString *const FW_PARAMETER_CLICK_VIEW_WIDTH;
-
-/**
- *  The key of defaultClickFWViewHeight parameter, this parameter can only be set before the slot play, otherwise no effect
- */
-FW_EXTERN NSString *const FW_PARAMETER_CLICK_VIEW_HEIGHT;
-
-/**
- *  The key of display ad renderer HTML content click processing enabled parameter. NSString @"YES", @"NO" are valid. Default is @"NO".
- */
-FW_EXTERN NSString *const FW_PARAMETER_DISPLAY_AD_HTML_CONTENT_CLICK_PROCESSING;
 
 /**
  *  The key of inAppView close button enable delay time parameter, in seconds. Default is 3 secs.
@@ -535,9 +597,9 @@ FW_EXTERN NSString *const FW_PARAMETER_IN_APP_VIEW_LOADING_TIMEOUT;
  *  The following template is suggested to use:\n
  *  \n
  *  \<div\>\n
- *       \<div style=\"\"\>\<img ID=\"<b>FW_IN_APP_VIEW_CONTROL_BAR_BACK_BUTTON</b>\"  src=\"data:image/png;base64,<b><i>PNG_BASE64_STRING</i></b>\" width=\"\" height=\"\"/\>\</div\>\n
- *       \<div style=\"\"\>\<img ID=\"<b>FW_IN_APP_VIEW_CONTROL_BAR_FORWARD_BUTTON</b>\"  src=\"data:image/png;base64,<b><i>PNG_BASE64_STRING</i></b>\" width=\"\" height=\"\"/\>\</div\>\n
- *       \<div style=\"\"\>\<img ID=\"<b>FW_IN_APP_VIEW_CONTROL_BAR_CLOSE_BUTTON</b>\"  src=\"data:image/png;base64,<b><i>PNG_BASE64_STRING</i></b>\" width=\"\" height=\"\"/\>\</div\>\n
+ *		\<div style=\"\"\>\<img ID=\"<b>FW_IN_APP_VIEW_CONTROL_BAR_BACK_BUTTON</b>\"  src=\"data:image/png;base64,<b><i>PNG_BASE64_STRING</i></b>\" width=\"\" height=\"\"/\>\</div\>\n
+ *		\<div style=\"\"\>\<img ID=\"<b>FW_IN_APP_VIEW_CONTROL_BAR_FORWARD_BUTTON</b>\"  src=\"data:image/png;base64,<b><i>PNG_BASE64_STRING</i></b>\" width=\"\" height=\"\"/\>\</div\>\n
+ *		\<div style=\"\"\>\<img ID=\"<b>FW_IN_APP_VIEW_CONTROL_BAR_CLOSE_BUTTON</b>\"  src=\"data:image/png;base64,<b><i>PNG_BASE64_STRING</i></b>\" width=\"\" height=\"\"/\>\</div\>\n
  *  \</div\>\n
  *  \n
  *  The <b>FW_IN_APP_VIEW_CONTROL_BAR_BACK_BUTTON</b>, <b>FW_IN_APP_VIEW_CONTROL_BAR_FORWARD_BUTTON</b> and <b>FW_IN_APP_VIEW_CONTROL_BAR_CLOSE_BUTTON</b> IDs have to be kept as such for handling event.\n
@@ -658,15 +720,15 @@ FW_EXTERN NSString *const FW_PARAMETER_COUNTDOWN_TIMER_TEXT_FONT;
 FW_EXTERN NSString *const FW_PARAMETER_COUNTDOWN_TIMER_HTML;
 
 /**
- *  Transparency of nontemporal slot background. NSString "YES, NO" are valid values. By default, it is NO (opaque).
- */
-FW_EXTERN NSString *const FW_PARAMETER_TRANSPARENT_BACKGROUND;
-
-/**
  *  Track the visibility of nontemporal slot automatically. When a nontemporal slot is visible, it will be played immediately. 
  *  NSString "YES, NO" are valid values. By default, it is NO.
  */
 FW_EXTERN NSString *const FW_PARAMETER_NONTEMPORAL_SLOT_VISIBILITY_AUTO_TRACKING;
+
+/**
+ *  The key of pause ad enable parameter. NSString @"YES", @"NO" are valid. Default is @"NO". This parameter can only be set before FW_NOTIFICATION_REQUEST_COMPLETE, otherwise no effect
+ */
+FW_EXTERN NSString *const FW_PARAMETER_PAUSEAD_ENABLE;
 
 /**
  *  Key of FW_NOTIFICATION_REQUEST_COMPLETE notification's userInfo dictionary.
@@ -674,9 +736,22 @@ FW_EXTERN NSString *const FW_PARAMETER_NONTEMPORAL_SLOT_VISIBILITY_AUTO_TRACKING
 FW_EXTERN NSString *const FW_INFO_KEY_ERROR;
 
 /**
- *  Key of FW_NOTIFICATION_SLOT_STARTED & FW_NOTIFICATION_SLOT_ENDED notification's userInfo dictionary. Its value is slot's custom id.
+ *  Key of FW_NOTIFICATION_SLOT_STARTED, FW_NOTIFICATION_SLOT_ENDED & FW_NOTIFICATION_AD_* notification's userInfo dictionary. Its value is slot's custom id.
  */
 FW_EXTERN NSString *const FW_INFO_KEY_CUSTOM_ID;
+
+/**
+ *  Key of FW_NOTIFICATION_AD_* notification's userInfo dictionary. Its value is ad's id.
+ */
+FW_EXTERN NSString *const FW_INFO_KEY_AD_ID;
+
+/**
+ *  Key of FW_NOTIFICATION_AD_* notification's userInfo dictionary. Its value is creative's id.
+ */
+FW_EXTERN NSString *const FW_INFO_KEY_CREATIVE_ID;
+
+FW_EXTERN NSString *const FW_INFO_KEY_USER_ACTION;
+
 
 /**
  *  Key of the dictionary returned by -[FWRenderer moduleInfo]. Its value is FW_MODULE_TYPE_*
@@ -872,8 +947,8 @@ FW_EXTERN NSString *const FW_PARAMETER_DESIRED_BITRATE;
  *  <ul><li>If it is not set, the application status bar orientation is used.
  *  	<li>It can be set to one of \@\"portrait\" and \@\"landscape\".
  *  	<ul><li> If it is set to \@\"portrait\", the smaller of UIScreen width and height will be selected as width and the bigger of UIScreen width and height will be selected as height.
- *          <li> The \@\"landscape\" is opposite to \@\"portrait\".
- *      </ul>
- *  </ul>    
+ *		  <li> The \@\"landscape\" is opposite to \@\"portrait\".
+ *	  </ul>
+ *  </ul>	
  */
 FW_EXTERN NSString *const FW_PARAMETER_DESIRED_ORIENTATION;

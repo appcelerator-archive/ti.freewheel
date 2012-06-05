@@ -376,9 +376,7 @@
     
     // NSLog(@"[DEBUG] (FreeWheel Module) Clicked an ad.");    
     
-    for (id<FWAdInstance> instance in [[adContext getSlotByCustomId:currentSlotID] adInstances]) {
-        [[instance rendererController] processEvent:FW_EVENT_AD_CLICK info:nil];
-    }
+    [[[[adContext getSlotByCustomId:currentSlotID] currentAdInstance] rendererController] processEvent:FW_EVENT_AD_CLICK info:nil];    
 }
 
 - (void)destroyContext:(id)args

@@ -126,6 +126,8 @@
     [adContext setVideoDisplayBase:[currentBase view]];
     [adContext setMoviePlayerController:currentPlayer];
     
+    // TODO: latest version of admanager will not always work well with currentBase layout that is not fixed width/height
+    
     // NSLog(@"[DEBUG] (FreeWheel Module) Created ad context and submitting request");
     
     [adContext submitRequest:6];
@@ -247,7 +249,6 @@
 {
     ENSURE_UI_THREAD_0_ARGS;
     
-    [currentPlayer pause];
     [adContext setVideoState:FW_VIDEO_STATE_PAUSED];
 }
 
@@ -255,7 +256,6 @@
 {
     ENSURE_UI_THREAD_0_ARGS;
     
-    // [currentPlayer play];
     [adContext setVideoState:FW_VIDEO_STATE_PLAYING];
 }
 
@@ -267,7 +267,7 @@
 }
 
 - (void)onAdOpen:(NSNotification*)notification
-{
+{    
     // This causes an selector exception. Disabling as it's not currently needed.
     // if ([self _hasListeners:@"onadopen"]) {
     //    [self fireEvent:@"onadopen" withObject:[notification userInfo]];
@@ -277,19 +277,19 @@
 - (void)onContentVideoPauseRequest:(NSNotification*)notification
 {
     // NSLog(@"[DEBUG] (FreeWheel Module) Pause request sent from AdManager");
-
-    [self changeStatePaused:nil];
-    //[currentPlayer pause];
-    //[adContext setVideoState:FW_VIDEO_STATE_PAUSED];
+    
+    TiThreadPerformOnMainThread(^{
+		[self fireEvent:@"onpauserequest"];
+	}, YES);    
 }
 
 - (void)onContentVideoResumeRequest:(NSNotification*)notification
 {
     // NSLog(@"[DEBUG] (FreeWheel Module) Resume request sent from AdManager");
     
-    [self changeStatePlaying:nil];
-    //[currentPlayer play];
-    //[adContext setVideoState:FW_VIDEO_STATE_PLAYING];
+    TiThreadPerformOnMainThread(^{
+		[self fireEvent:@"onresumerequest"];
+	}, YES);
 }
 
 

@@ -123,7 +123,10 @@
     
     [adContext setProfile:currentProfile :nil :nil :nil];
     
-    [adContext setVideoDisplayBase:[currentBase view]];
+    TiThreadPerformOnMainThread(^{
+        [adContext setVideoDisplayBase:[currentBase view]];
+    }, YES);
+    
     [adContext setMoviePlayerController:currentPlayer];
     
     // TODO: latest version of admanager will not always work well with currentBase layout that is not fixed width/height
@@ -235,6 +238,20 @@
     }
 }
 
+- (void)updateVideoDisplayBase:(id)arg
+{
+    ENSURE_UI_THREAD_0_ARGS;
+    
+    // NSLog(@"[DEBUG] (FreeWheel Module) Updating video display base.");
+        
+    // TODO: We might be able to move this to frameChanged so that this occurs automatically
+    
+    TiThreadPerformOnMainThread(^{
+        [[currentBase view] sizeToFit];
+        [adContext setVideoDisplayBase:[currentBase view]];
+    }, YES);
+}
+
 - (void)frameChanged:(NSNotification*)notification
 {
     // NSLog(@"[DEBUG] (FreeWheel Module) FRAME CHANGED");
@@ -306,6 +323,10 @@
     currentSlotID = [[notification userInfo] objectForKey:FW_INFO_KEY_CUSTOM_ID];
         
     @try {
+        TiThreadPerformOnMainThread(^{
+            [adContext setVideoDisplayBase:[currentBase view]];
+        }, YES);
+        
         for (id<FWAdInstance> instance in [[adContext getSlotByCustomId:[[notification userInfo] objectForKey:FW_INFO_KEY_CUSTOM_ID]] adInstances]) {
             [ads addObject:[[[NSDictionary alloc] initWithObjectsAndKeys:
                              [NSNumber numberWithLongLong:[instance creativeId]], @"creativeId",

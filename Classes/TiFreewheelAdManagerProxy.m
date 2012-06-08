@@ -245,10 +245,10 @@
     // NSLog(@"[DEBUG] (FreeWheel Module) Updating video display base.");
         
     // TODO: We might be able to move this to frameChanged so that this occurs automatically
+    // NOTE: Video display base is set and monitored by ad context.
     
     TiThreadPerformOnMainThread(^{
         [[currentBase view] sizeToFit];
-        [adContext setVideoDisplayBase:[currentBase view]];
     }, YES);
 }
 
@@ -322,11 +322,7 @@
     
     currentSlotID = [[notification userInfo] objectForKey:FW_INFO_KEY_CUSTOM_ID];
         
-    @try {
-        TiThreadPerformOnMainThread(^{
-            [adContext setVideoDisplayBase:[currentBase view]];
-        }, YES);
-        
+    @try {        
         for (id<FWAdInstance> instance in [[adContext getSlotByCustomId:[[notification userInfo] objectForKey:FW_INFO_KEY_CUSTOM_ID]] adInstances]) {
             [ads addObject:[[[NSDictionary alloc] initWithObjectsAndKeys:
                              [NSNumber numberWithLongLong:[instance creativeId]], @"creativeId",

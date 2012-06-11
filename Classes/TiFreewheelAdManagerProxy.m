@@ -30,12 +30,12 @@
     serverUrl = [properties objectForKey:@"serverUrl"];
         
     for (NSString *key in properties) {
-        // NSLog(@"[DEBUG] (FreeWheel Module) %@ is set to %@", key, [properties objectForKey:key]);
+        DLog(@"[DEBUG] (FreeWheel Module) %@ is set to %@", key, [properties objectForKey:key]);
     }
         
     [self start:nil];
 
-    // NSLog(@"[DEBUG] (FreeWheel Module) Configured Ad Manager proxy");
+    DLog(@"[DEBUG] (FreeWheel Module) Configured Ad Manager proxy");
 }
 
 - (void)_initWithProperties:(NSDictionary *)properties
@@ -61,14 +61,14 @@
 	[locationManager startUpdatingLocation];	
 	[adManager setLocation:[locationManager location]];
 	
-    // NSLog(@"[DEBUG] (FreeWheel Module) Started Ad Manager");
+    DLog(@"[DEBUG] (FreeWheel Module) Started Ad Manager");
 }
 
 -(void)setCurrentController:(UIViewController*)controller
 {
     [adManager setCurrentViewController:controller];
     
-    // NSLog(@"[DEBUG] (FreeWheel Module) Set current controller to: %@", controller);
+    DLog(@"[DEBUG] (FreeWheel Module) Set current controller to: %@", controller);
 }
 
 - (void)setAdContext:(id)args
@@ -86,16 +86,16 @@
     processCompanion = [TiUtils boolValue:[args objectForKey:@"processCompanion"] def:YES];
             
     for (NSString *key in args) {
-        // NSLog(@"[DEBUG] (FreeWheel Module) %@ is set on %@", key, [args objectForKey:key]);
+        DLog(@"[DEBUG] (FreeWheel Module) %@ is set on %@", key, [args objectForKey:key]);
     }
     
     [self setCurrentController:[[TiApp app] controller]];
              
     currentPlayer = [[args objectForKey:@"player"] ensurePlayer]; // we do get access to this, even though xcode is complaining
     
-    // NSLog(@"currentPlayer: %@", currentPlayer);
+    DLog(@"currentPlayer: %@", currentPlayer);
     
-    // NSLog(@"[DEBUG] (FreeWheel Module) Set current player and created ad context");
+    DLog(@"[DEBUG] (FreeWheel Module) Set current player and created ad context");
         
     [self createAdContext];
 }
@@ -131,7 +131,7 @@
     
     // TODO: latest version of admanager will not always work well with currentBase layout that is not fixed width/height
     
-    // NSLog(@"[DEBUG] (FreeWheel Module) Created ad context and submitting request");
+    DLog(@"[DEBUG] (FreeWheel Module) Created ad context and submitting request");
     
     [adContext submitRequest:6];
 }
@@ -140,28 +140,28 @@
 {    
     [adManager setLocation:newLocation];
     
-    // NSLog(@"[DEBUG] (FreeWheel Module) Set location");
+    DLog(@"[DEBUG] (FreeWheel Module) Set location");
 }
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error 
 {
-    // NSLog(@"[DEBUG] (FreeWheel Module) Location manager had an error: %@", error);
+    DLog(@"[DEBUG] (FreeWheel Module) Location manager had an error: %@", error);
 }
 
 - (void)onAdRequestComplete:(NSNotification *)notification 
 {    
-    // NSLog(@"[DEBUG] (FreeWheel Module) Ad response recieved");
-    // NSLog(@"[DEBUG] (FreeWheel Module) Attempting to setup player based on response");
+    DLog(@"[DEBUG] (FreeWheel Module) Ad response recieved");
+    DLog(@"[DEBUG] (FreeWheel Module) Attempting to setup player based on response");
     
     if ([notification object] != adContext || [[notification userInfo] objectForKey:@"error"]) {
-        // NSLog(@"[DEBUG] (FreeWheel Module) There was an error with the ad response");
+        DLog(@"[DEBUG] (FreeWheel Module) There was an error with the ad response");
         
         if ([self _hasListeners:@"onadresponseerror"]) {
             [self fireEvent:@"onadresponseerror" withObject:[notification userInfo]];
         }
     } else {
-        // NSLog(@"[DEBUG] (FreeWheel Module) Ad response looks good");
-        // NSLog(@"[DEBUG] (FreeWheel Module) Setting MP controller and attempting to play ads");
+        DLog(@"[DEBUG] (FreeWheel Module) Ad response looks good");
+        DLog(@"[DEBUG] (FreeWheel Module) Setting MP controller and attempting to play ads");
 
         WARN_IF_BACKGROUND_THREAD_OBJ;
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAdSlotStarted:) name:FW_NOTIFICATION_SLOT_STARTED object:adContext];
@@ -177,26 +177,26 @@
         NSDictionary *adPositions = nil;
         
         for (id<FWSlot> temporalSlot in [adContext temporalSlots]) {
-            // NSLog(@"Time Position: %f", [temporalSlot timePosition]);
+            DLog(@"Time Position: %f", [temporalSlot timePosition]);
             
             switch ([temporalSlot timePositionClass]) {
                 case FW_TIME_POSITION_CLASS_PREROLL:
                     [prerollSlots addObject:[[[NSDictionary alloc] initWithObjectsAndKeys:
                                              [NSNumber numberWithDouble:[temporalSlot timePosition]], @"time", 
                                              nil] autorelease]];
-                    // NSLog(@"[DEBUG] (FreeWheel Module) Time Position Class is PREROLL");
+                    DLog(@"[DEBUG] (FreeWheel Module) Time Position Class is PREROLL");
                     break;
                 case FW_TIME_POSITION_CLASS_MIDROLL:
                     [midrollSlots addObject:[[[NSDictionary alloc] initWithObjectsAndKeys:
                                              [NSNumber numberWithDouble:[temporalSlot timePosition]], @"time", 
                                              nil] autorelease]];
-                    // NSLog(@"[DEBUG] (FreeWheel Module) Time Position Class is MIDROLL");
+                    DLog(@"[DEBUG] (FreeWheel Module) Time Position Class is MIDROLL");
                     break;
                 case FW_TIME_POSITION_CLASS_POSTROLL:
                     [postrollSlots addObject:[[[NSDictionary alloc] initWithObjectsAndKeys:
                                               [NSNumber numberWithDouble:[temporalSlot timePosition]], @"time", 
                                               nil] autorelease]];
-                    // NSLog(@"[DEBUG] (FreeWheel Module) Time Position Class is POSTROLL");
+                    DLog(@"[DEBUG] (FreeWheel Module) Time Position Class is POSTROLL");
                     break;
                 default:
                     break;
@@ -204,18 +204,18 @@
         }
         
         if (processCompanion) {
-            // NSLog(@"[DEBUG] (FreeWheel Module) Processing companion at ad response");
+            DLog(@"[DEBUG] (FreeWheel Module) Processing companion at ad response");
 
-            // NSLog(@"[DEBUG] (FreeWheel Module) Looking for non-temporal video slots");
+            DLog(@"[DEBUG] (FreeWheel Module) Looking for non-temporal video slots");
             for (id<FWSlot> nonTemporalVideoSlot in [adContext videoPlayerNonTemporalSlots]) {
-                // NSLog(@"[DEBUG] (FreeWheel Module) Found non-temporal video slot");
+                DLog(@"[DEBUG] (FreeWheel Module) Found non-temporal video slot");
                 [[currentCompanionBase view] addSubview:[nonTemporalVideoSlot slotBase]];
                 [nonTemporalVideoSlot play];
             }
             
-            // NSLog(@"[DEBUG] (FreeWheel Module) Looking for non-temporal site section slots");
+            DLog(@"[DEBUG] (FreeWheel Module) Looking for non-temporal site section slots");
             for (id<FWSlot> nonTemporalSiteSectionSlot in [adContext siteSectionNonTemporalSlots]) {
-                // NSLog(@"[DEBUG] (FreeWheel Module) Found non-temporal site section slot");
+                DLog(@"[DEBUG] (FreeWheel Module) Found non-temporal site section slot");
                 [[currentCompanionBase view] addSubview:[nonTemporalSiteSectionSlot slotBase]];
                 [nonTemporalSiteSectionSlot play];
             }
@@ -242,23 +242,22 @@
 {
     ENSURE_UI_THREAD_0_ARGS;
     
-    // NSLog(@"[DEBUG] (FreeWheel Module) Updating video display base.");
+    DLog(@"[DEBUG] (FreeWheel Module) Updating video display base.");
         
     // TODO: We might be able to move this to frameChanged so that this occurs automatically
-    // NOTE: Video display base is set and monitored by ad context.
     
     TiThreadPerformOnMainThread(^{
-        [[currentBase view] sizeToFit];
+        [[currentBase view] sizeToFit];  
     }, YES);
 }
 
 - (void)frameChanged:(NSNotification*)notification
 {
-    // NSLog(@"[DEBUG] (FreeWheel Module) FRAME CHANGED");
+    DLog(@"[DEBUG] (FreeWheel Module) FRAME CHANGED");
     
     for (UIView *subview in [[currentBase view] subviews])
     {
-        // NSLog(@"[DEBUG] (FreeWheel Module) %@", subview);
+        DLog(@"[DEBUG] (FreeWheel Module) %@", subview);
     }
 }
 
@@ -293,7 +292,7 @@
 
 - (void)onContentVideoPauseRequest:(NSNotification*)notification
 {
-    // NSLog(@"[DEBUG] (FreeWheel Module) Pause request sent from AdManager");
+    DLog(@"[DEBUG] (FreeWheel Module) Pause request sent from AdManager");
     
     TiThreadPerformOnMainThread(^{
 		[self fireEvent:@"onpauserequest"];
@@ -302,7 +301,7 @@
 
 - (void)onContentVideoResumeRequest:(NSNotification*)notification
 {
-    // NSLog(@"[DEBUG] (FreeWheel Module) Resume request sent from AdManager");
+    DLog(@"[DEBUG] (FreeWheel Module) Resume request sent from AdManager");
     
     TiThreadPerformOnMainThread(^{
 		[self fireEvent:@"onresumerequest"];
@@ -312,17 +311,17 @@
 
 - (void)onAdSlotStarted:(NSNotification *)notification
 {    
-    // NSLog(@"[DEBUG] (FreeWheel Module) Attempting to play slot");
+    DLog(@"[DEBUG] (FreeWheel Module) Attempting to play slot");
     
     if ([[notification userInfo] objectForKey:@"error"]) {
-        // NSLog(@"[ERROR] SLOT START FAILED: %@", [[notification userInfo] objectForKey:@"error"]);
+        DLog(@"[ERROR] SLOT START FAILED: %@", [[notification userInfo] objectForKey:@"error"]);
     }
 
     NSMutableArray *ads = [[NSMutableArray alloc] init];
     
     currentSlotID = [[notification userInfo] objectForKey:FW_INFO_KEY_CUSTOM_ID];
         
-    @try {        
+    @try {
         for (id<FWAdInstance> instance in [[adContext getSlotByCustomId:[[notification userInfo] objectForKey:FW_INFO_KEY_CUSTOM_ID]] adInstances]) {
             [ads addObject:[[[NSDictionary alloc] initWithObjectsAndKeys:
                              [NSNumber numberWithLongLong:[instance creativeId]], @"creativeId",
@@ -330,19 +329,19 @@
                              nil] autorelease]];
                         
             if (processCompanion) {
-                // NSLog(@"[DEBUG] (FreeWheel Module) Processing companion at slot");
+                DLog(@"[DEBUG] (FreeWheel Module) Processing companion at slot");
                 if ([[instance companionSlots] count] > 0) {
                     [[currentCompanionBase view] addSubview:[[adContext getSlotByCustomId:[[[instance companionSlots] objectAtIndex:0] customId]] slotBase]]; // add companion view
                 } else {
-                    // NSLog(@"[DEBUG] (FreeWheel Module) Did not find companion slots");
+                    DLog(@"[DEBUG] (FreeWheel Module) Did not find companion slots");
                 }
             }
             
-            // NSLog(@"[DEBUG] (FreeWheel Module) Ad Instance: %@", instance);
+            DLog(@"[DEBUG] (FreeWheel Module) Ad Instance: %@", instance);
         }
     }
     @catch (NSException *exception) {
-        // NSLog(@"[ERROR] Issue parsing slot data (most likely companion): %@", exception);
+        DLog(@"[ERROR] Issue parsing slot data (most likely companion): %@", exception);
     }
             
     if ([self _hasListeners:@"onslotstarted"]) {
@@ -351,7 +350,7 @@
                                                      nil] autorelease]];   
     }
         
-    // NSLog(@"[DEBUG] (FreeWheel Module) Companion Base Subview Count: %d", [[[currentCompanionBase view] subviews] count]); // just checking to see if the slotBase is being removed correctly
+    DLog(@"[DEBUG] (FreeWheel Module) Companion Base Subview Count: %d", [[[currentCompanionBase view] subviews] count]); // just checking to see if the slotBase is being removed correctly
 
     RELEASE_TO_NIL(ads);
 }
@@ -361,7 +360,7 @@
     NSString *type = [[NSString alloc] init];
     
     if ([[notification userInfo] objectForKey:@"error"]) {
-        // NSLog(@"[ERROR] SLOT END FAILED: %@", [[notification userInfo] objectForKey:@"error"]);
+        DLog(@"[ERROR] SLOT END FAILED: %@", [[notification userInfo] objectForKey:@"error"]);
     }
     
     switch ([[adContext getSlotByCustomId:[[notification userInfo] objectForKey:FW_INFO_KEY_CUSTOM_ID]] timePositionClass]) {
@@ -391,7 +390,7 @@
 {
     ENSURE_UI_THREAD_0_ARGS;
     
-    // NSLog(@"[DEBUG] (FreeWheel Module) Clicked an ad.");    
+    DLog(@"[DEBUG] (FreeWheel Module) Clicked an ad.");    
     
     [[[[adContext getSlotByCustomId:currentSlotID] currentAdInstance] rendererController] processEvent:FW_EVENT_AD_CLICK info:nil];    
 }
@@ -400,7 +399,7 @@
 {
     ENSURE_UI_THREAD_0_ARGS;
     
-    // NSLog(@"[DEBUG] (FreeWheel Module) Releasing ad context");
+    DLog(@"[DEBUG] (FreeWheel Module) Releasing ad context");
     
     if (adContext) {
         contextDestroyed = YES;
@@ -439,7 +438,7 @@
 {
     ENSURE_UI_THREAD_0_ARGS;
     
-    // NSLog(@"[DEBUG] (FreeWheel Module) Attempting to pause ads.");
+    DLog(@"[DEBUG] (FreeWheel Module) Attempting to pause ads.");
     
     if ([[adContext getSlotByCustomId:currentSlotID] respondsToSelector:@selector(pause)]) {
         [[adContext getSlotByCustomId:currentSlotID] performSelector:@selector(pause)];
@@ -454,7 +453,7 @@
 {
     ENSURE_UI_THREAD_0_ARGS;
     
-    // NSLog(@"[DEBUG] (FreeWheel Module) Attempting to resume ads.");
+    DLog(@"[DEBUG] (FreeWheel Module) Attempting to resume ads.");
     
     if ([[adContext getSlotByCustomId:currentSlotID] respondsToSelector:@selector(resume)]) {
         [[adContext getSlotByCustomId:currentSlotID] performSelector:@selector(resume)];
@@ -466,7 +465,7 @@
     ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
 	ENSURE_UI_THREAD_1_ARG(args);
     
-    // NSLog(@"[DEBUG] (FreeWheel Module) Playing ads");
+    DLog(@"[DEBUG] (FreeWheel Module) Playing ads");
         
     for (id<FWSlot> slot in [adContext temporalSlots]) {
         if ([slot timePosition] == [[args objectForKey:@"time"] longLongValue]) {

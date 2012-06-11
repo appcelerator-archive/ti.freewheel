@@ -145,15 +145,15 @@ def zip_dir(zf,dir,basepath,ignore=[]):
 def glob_libfiles():
 	files = []
 	for libfile in glob.glob('build/**/*.a'):
-		if libfile.find('Release-')!=-1:
+		if libfile.find('%s-' % option)!=-1:
 			files.append(libfile)
 	return files
 
 def build_module(manifest,config):
-	rc = os.system("xcodebuild -sdk iphoneos -configuration Release")
+	rc = os.system("xcodebuild -sdk iphoneos -configuration %s" % option)
 	if rc != 0:
 		die("xcodebuild failed")
-	rc = os.system("xcodebuild -sdk iphonesimulator -configuration Release")
+	rc = os.system("xcodebuild -sdk iphonesimulator -configuration %s" % option)
 	if rc != 0:
 		die("xcodebuild failed")
     # build the merged library using lipo
@@ -190,11 +190,20 @@ def package_module(manifest,mf,config):
 	
 
 if __name__ == '__main__':
-	manifest,mf = validate_manifest()
-	validate_license()
-	config = read_ti_xcconfig()
-	compile_js(manifest,config)
-	build_module(manifest,config)
-	package_module(manifest,mf,config)
-	sys.exit(0)
-
+	if (len(sys.argv)>2):
+		sys.exit('Please use the format: build.py [Debug|Release]')
+	else:
+		if len(sys.argv) == 1:
+			option = 'Release'
+		elif (sys.argv)>1 and sys.argv[1] in ['Debug','Release']:
+			option = sys.argv[1]
+		else:
+			sys.exit('Please use the format: build.py [Debug|Release]')
+				
+		manifest,mf = validate_manifest()
+		validate_license()
+		config = read_ti_xcconfig()
+		compile_js(manifest,config)
+		build_module(manifest,config)
+		package_module(manifest,mf,config)
+		sys.exit(0)

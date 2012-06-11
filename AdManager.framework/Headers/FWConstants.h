@@ -51,7 +51,7 @@ typedef enum {
 	FW_CAPABILITY_STATUS_OFF					=	0,
 	/** Capability status is on */
 	FW_CAPABILITY_STATUS_ON						=	1,	
-	/** Capability status is default */
+	/** Default capability status. The default value can be either on or off for each individual capability. */
 	FW_CAPABILITY_STATUS_DEFAULT				=	-1
 } FWCapabilityStatus;
 
@@ -133,11 +133,11 @@ typedef enum {
  * Enumeration of FWRendererState types
  */
 typedef enum {
-	/** Renderer State started, if renderer actually started */
+	/** Renderer State: Started. Renderer should transit to this state as soon as it starts. */
 	FW_RENDERER_STATE_STARTED					=	3,
-	/** Renderer State completed, if renderer done the clean up and ready to be disposed, should change to this state */
+	/** Renderer State: Completed. Renderer should transit to this state when it has completed all its workflow and ready to be destroyed. */
 	FW_RENDERER_STATE_COMPLETED					=	5,
-	/** Renderer State failed */
+	/** Renderer State: Failed. Renderer should transit to this state when the workflow is interrupted due to some errors. */
 	FW_RENDERER_STATE_FAILED					=	6
 } FWRendererStateType;
 
@@ -145,19 +145,19 @@ typedef enum {
  * Enumeration of RequestMode types
  */
 typedef enum {
-	/** Request Mode onDemand */
+	/** Request Mode: On demand */
 	FW_REQUEST_MODE_ON_DEMAND				=	1,	
-	/** Request Mode live */
+	/** Request Mode: Live */
 	FW_REQUEST_MODE_LIVE					=	2
 } FWRequestMode;
 
 /**
- * Enumeration of video asset duration types
+ * Enumeration of video asset duration types. See also: -[FWContext setVideoAsset:::::::::]
  */
 typedef enum {
-	/** Video Asset duration type exact */
+	/** Video asset duration type: Exact. This value should be used for video asset whose exact duration is known. */
 	FW_VIDEO_ASSET_DURATION_TYPE_EXACT				=	1,	
-	/** Video Asset duration type variable for live mode */
+	/** Video asset duration type: Variable. This value should be used for live stream video asset whose exact duration is not available. */
 	FW_VIDEO_ASSET_DURATION_TYPE_VARIABLE			=	2
 } FWVideoAssetDurationType;
 
@@ -165,80 +165,94 @@ typedef enum {
  * Enumeration of video asset auto play types
  */
 typedef enum {
-	/** Video Asset auto play type none */
+	/** Video asset auto play type: None */
 	FW_VIDEO_ASSET_AUTO_PLAY_TYPE_NONE	= 0,
-	/** Video Asset auto play type attended*/
+	/** Video asset auto play type: Attended*/
 	FW_VIDEO_ASSET_AUTO_PLAY_TYPE_ATTENDED	=	1,	
-	/** Video Asset auto play type unattended */
+	/** Video asset auto play type: Unattended */
 	FW_VIDEO_ASSET_AUTO_PLAY_TYPE_UNATTENDED =	2
 } FWVideoAssetAutoPlayType;
 
 /**
- * Enumeration of user action types
+ * Enumeration of user actions. See -[FWContext notifyUserAction:] for details.
  */
 typedef enum {
-	/** Usera action when video player pause button is clicked */
+	/** User action: video player's pause button is clicked */
 	FW_USER_ACTION_PAUSE_BUTTON_CLICKED = 0,
-	/** Usera action when video player resume button is clicked */
+	/** User action: video player's resume button is clicked */
 	FW_USER_ACTION_RESUME_BUTTON_CLICKED = 1
 } FWUserAction;
 
-/** 
- *	AdManager publishes notification of this topic after ad request completed with info:
- *	FW_INFO_KEY_ERROR		-	a NSArray of NSError, optional
- */
+/**
+ *  Notification broadcasted when ad request has completed.
+ *  object is the FWContext instance used to send the request;
+ *  Check userInfo with FW_INFO_KEY_ERROR for errors; will get nil if request has been successful.
+ */ 
 FW_EXTERN NSString *const FW_NOTIFICATION_REQUEST_COMPLETE;
 
 /** 
- *	AdManager publishes notification of this topic before slot started with info:
- *	FW_INFO_KEY_CUSTOM_ID	-	slot custom id
+ *	Notification broadcasted when a slot has started.
+ *	Check userInfo with FW_INFO_KEY_CUSTOM_ID for the slot's custom ID.
+ *  See also: - FW_NOTIFICATION_SLOT_ENDED
  */
 FW_EXTERN NSString *const FW_NOTIFICATION_SLOT_STARTED;
 
 /** 
- *	AdManager publishes notification of this topic after slot ended with info:
- *	FW_INFO_KEY_CUSTOM_ID	-	slot custom id
+ *	Notification broadcasted when a slot has ended.
+ *	Check userInfo with FW_INFO_KEY_CUSTOM_ID for the slot's custom ID.
+ *  See also: - FW_NOTIFICATION_SLOT_STARTED
  */
 FW_EXTERN NSString *const FW_NOTIFICATION_SLOT_ENDED; 
 
 /** 
- *	AdManager publishes notification of this topic when in-app view opened 
+ *	Notification broadcasted when inAppView is opened.
+ *  See also: - FW_NOTIFICATION_IN_APP_VIEW_CLOSE
+ *            - FW_NOTIFICATION_IN_APP_VIEW_WILL_OPEN_MEDIA_DOCUMENT
  */
 FW_EXTERN NSString *const FW_NOTIFICATION_IN_APP_VIEW_OPEN;
 
 /** 
- *	AdManager publishes notification of this topic when in-app view closed 
+ *	Notification broadcasted when inAppView is closed.
+ *  See also: - FW_NOTIFICATION_IN_APP_VIEW_OPEN
+ *            - FW_NOTIFICATION_IN_APP_VIEW_WILL_OPEN_MEDIA_DOCUMENT
  */
 FW_EXTERN NSString *const FW_NOTIFICATION_IN_APP_VIEW_CLOSE;
+
 /** 
- *	AdManager publishes notification of this topic when in-app view will open media document 
+ *	Notification broadcasted when inAppView will open a media document from URI.
+ *  See also: - FW_NOTIFICATION_IN_APP_VIEW_OPEN
+ *            - FW_NOTIFICATION_IN_APP_VIEW_CLOSE
  */
 FW_EXTERN NSString *const FW_NOTIFICATION_IN_APP_VIEW_WILL_OPEN_MEDIA_DOCUMENT;
 
 /** 
- *	AdManager publishes notification of this topic when ad needs to pause the main content video
- *	FW_INFO_KEY_CUSTOM_ID		-	slot
+ *	Notification broadcasted when AdManager needs your content video player to pause.
+ *  It could be due to a midroll slot is about to start, or user has tapped on an ad that needs to interrupt the main video.
+ *	You can query userInfo with FW_INFO_KEY_CUSTOM_ID to find the slot that has caused the interruption.
+ *  See also: - FW_NOTIFICATION_CONTENT_RESUME_REQUEST
  */
 FW_EXTERN NSString *const FW_NOTIFICATION_CONTENT_PAUSE_REQUEST;
 
 /** 
- *	AdManager publishes notification of this topic when ad needs to resume the main content video
- *	FW_INFO_KEY_CUSTOM_ID		-	slot
+ *	Notification broadcasted when AdManager needs your content video player to pause.
+ *  It could be due to a midroll slot has ended, or an interruptive ad has been closed.
+ *	You can query userInfo with FW_INFO_KEY_CUSTOM_ID to find the slot that has caused the interruption.
+ *  See also: - FW_NOTIFICATION_CONTENT_PAUSE_REQUEST
  */
 FW_EXTERN NSString *const FW_NOTIFICATION_CONTENT_RESUME_REQUEST;
 
 /**
- *  AdManager publishes notification of this topic when ad_impression is sent successfully
+ *  Notification broadcasted when an ad has successfully started.
  */ 
 FW_EXTERN NSString *const FW_NOTIFICATION_AD_IMPRESSION;
 
 /**
- *  AdManager publishes notification of this topic when ad_impression_end is sent successfully
+ *  Notification broadcasted when an ad has successfully ended.
  */ 
 FW_EXTERN NSString *const FW_NOTIFICATION_AD_IMPRESSION_END;
 
 /**
- *  AdManager publishes notification of this topic when ad gets an error and fails
+ *  Notification broadcasted when an ad has failed.
  */ 
 FW_EXTERN NSString *const FW_NOTIFICATION_AD_ERROR;
 
@@ -246,30 +260,31 @@ FW_EXTERN NSString *const FW_NOTIFICATION_AD_ERROR;
 FW_EXTERN NSString *const FW_NOTIFICATION_USER_ACTION_NOTIFIED;
 
 /**
- *  Renderer should publishes notification of this topic before the ad expand to fullscreen
+ *  Renderer should publish this notification before an ad expands to fullscreen
  */
 FW_EXTERN NSString *const FW_NOTIFICATION_AD_EXPAND_TO_FULLSCREEN;
 
 /**
- *  Renderer should publishes notification of this topic after the ad collapse from fullscreen
+ *  Renderer should publish this notification after an ad collapses from fullscreen
  */
 FW_EXTERN NSString *const FW_NOTIFICATION_AD_COLLAPSE_FROM_FULLSCREEN;
 
 
 /** 
- *	Player sends notification of this topic after video display base is changed by setVideoDisplayBase
- *	FW_INFO_KEY_VIDEO_DISPLAY_BASE		-	key of video display base object
+ *	Notification broadcasted when video display is changed.
+ *	You can get the new video display base by querying userInfo with FW_INFO_KEY_VIDEO_DISPLAY_BASE
+ *  See also: [FWContext setVideoDisplayBase:]
  */
 FW_PRIVATE_EXTERN NSString *FW_NOTIFICATION_VIDEO_DISPLAY_BASE_CHANGED;
 
 /** 
- *	Player sends notification of this topic after size of video display base is changed
- *	FW_INFO_KEY_VIDEO_DISPLAY_BASE		-	key of video display base object
+ *	Notification broadcasted when video display's frame has been changed.
+ *	You can get the video display base by querying userInfo with FW_INFO_KEY_VIDEO_DISPLAY_BASE
  */
 FW_PRIVATE_EXTERN NSString *FW_NOTIFICATION_VIDEO_DISPLAY_BASE_FRAME_CHANGED;
 
 /**
- * Predefined ad unit: preroll
+ * Ad unit: preroll
  *
  * See Also:
  *	- FW_ADUNIT_MIDROLL
@@ -282,7 +297,7 @@ FW_PRIVATE_EXTERN NSString *FW_NOTIFICATION_VIDEO_DISPLAY_BASE_FRAME_CHANGED;
 FW_EXTERN NSString *const FW_ADUNIT_PREROLL; 
 
 /**
- * Predefined ad unit: midroll
+ * Ad unit: midroll
  * 
  * See Also:
  *	- FW_ADUNIT_PREROLL
@@ -295,7 +310,7 @@ FW_EXTERN NSString *const FW_ADUNIT_PREROLL;
 FW_EXTERN NSString *const FW_ADUNIT_MIDROLL; 
 
 /**
- * Predefined ad unit: postroll
+ * Ad unit: postroll
  *
  * See Also:
  *	- FW_ADUNIT_PREROLL
@@ -308,7 +323,7 @@ FW_EXTERN NSString *const FW_ADUNIT_MIDROLL;
 FW_EXTERN NSString *const FW_ADUNIT_POSTROLL; 
 
 /**
- * Predefined ad unit: overlay
+ * Ad unit: overlay
  *
  * See Also:
  *	- FW_ADUNIT_PREROLL
@@ -322,7 +337,7 @@ FW_EXTERN NSString *const FW_ADUNIT_OVERLAY;
 
 
 /**
- * Predefined ad unit: overlay
+ * Ad unit: pause midroll
  *
  * See Also:
  *	- FW_ADUNIT_PREROLL
@@ -335,7 +350,7 @@ FW_EXTERN NSString *const FW_ADUNIT_OVERLAY;
 FW_EXTERN NSString *const FW_ADUNIT_PAUSE_MIDROLL;
 
 /**
- *	Predefined ad unit: preroll of a STREAM
+ *	Ad unit: stream preroll
  *	
  *	See Also:
  *	- FW_ADUNIT_PREROLL
@@ -348,7 +363,7 @@ FW_EXTERN NSString *const FW_ADUNIT_PAUSE_MIDROLL;
 FW_EXTERN NSString *const FW_ADUNIT_STREAM_PREROLL;
 
 /**
- *	Predefined ad unit: postroll of a STREAM
+ *	Ad unit: stream postroll
  *	
  *	See Also:
  *	- FW_ADUNIT_PREROLL
@@ -361,36 +376,42 @@ FW_EXTERN NSString *const FW_ADUNIT_STREAM_PREROLL;
 FW_EXTERN NSString *const FW_ADUNIT_STREAM_POSTROLL;
 
 /**
- *	Player expects template-based slots generated by ad server
+ *	Capability: Player expects template-based slots generated by ad server
  *	
- *	Note:
- *		This is on by default
+ *	Default: ON
+ *  See also: - [FWContext setCapability::]
  */
 FW_EXTERN NSString *const FW_CAPABILITY_SLOT_TEMPLATE; 
 
 /**
- *	Ad unit in multiple slots
+ *	Capability: Ad unit in multiple slots
  *
- *	Note:
- *		This is on by default
+ *	Default: ON
+ *  See also: - [FWContext setCapability::]
  */
 FW_EXTERN NSString *const FW_CAPABILITY_ADUNIT_IN_MULTIPLE_SLOTS; 
 
 /**
- * Bypass commercial ratio restriction
+ *  Capability: Bypass commercial ratio restriction
+ *
+ *	Default: OFF
+ *  See also: - [FWContext setCapability::]
  */
 FW_EXTERN NSString *const FW_CAPABILITY_BYPASS_COMMERCIAL_RATIO_RESTRICTION; 
 
 /**
- *	Player expects ad server to check companion for candidate ads 
+ *	Capability: Player expects ad server to check companion for candidate ads 
  *
- *	Note:
- *		This is on by default
+ *	Default: ON
+ *  See also: - [FWContext setCapability::]
  */
 FW_EXTERN NSString *const FW_CAPABILITY_CHECK_COMPANION; 
 
 /**
- *	Player expects ad server to check targeting for candidate ads 
+ *	Capability: Player expects ad server to check targeting for candidate ads 
+ *
+ *	Default: ON
+ *  See also: - [FWContext setCapability::]
  */
 FW_EXTERN NSString *const FW_CAPABILITY_CHECK_TARGETING; 
 
@@ -410,54 +431,63 @@ FW_EXTERN NSString *const FW_CAPABILITY_SLOT_CALLBACK;
 FW_EXTERN NSString *const FW_CAPABILITY_SKIP_AD_SELECTION; 
 
 /**
- *	Whether or not video view will be recorded implicitly.
+ *	Capability: Implicitly record video view.
+ *
+ *  Default: OFF
+ *  See also: - [FWContext setCapability::]
  */
 FW_EXTERN NSString *const FW_CAPABILITY_RECORD_VIDEO_VIEW; 
 
 /**
- *	Player expects ad server synchronize the request state between multiple request 
+ *	Capability: Player expects ad server synchronize the request state between multiple request 
+ *
+ *  Default: OFF
+ *  See also: - [FWContext setCapability::] 
  */
 FW_EXTERN NSString *const FW_CAPABILITY_SYNC_MULTI_REQUESTS;
 
 /**
- *	Reset the exclusivity scope. Player can turn on/off this capability before making any request.
+ *	Capability: Reset the exclusivity scope. Player can turn on/off this capability before making any request.
  *	
- *	Notes:
+ *	Note:
  *		Once you turn this capability ON, all following requests will carry this signal and reset the exclusivity scope.
- *		So make sure to turn it off when exclusivity scope has been reset (the request has been submit).
+ *		So make sure to turn it off once the specific ad request has been submitted.
+ *
+ *  Default: OFF
+ *  See also: - [FWContext setCapability::]
  */
 FW_EXTERN NSString *const FW_CAPABILITY_RESET_EXCLUSIVITY;
 
 /**
- *	Player expects ad should have a list of fallback alternative ads.
+ *	Capability: Player expects ad to have fallback alternative ads.
  *	
- *	Note:
- *		This is on by default
+ *	Default: ON
+ *  See also: - [FWContext setCapability::]
  */
 FW_EXTERN NSString *const FW_CAPABILITY_FALLBACK_ADS;
 
 /**
-*	Player expects multiple creative renditions for an ad.
-*	
-*	Note:
-*		This is on by default
-*/
+ *	Capability: Player expects multiple creative renditions for an ad.
+ *	
+ *	Default: ON
+ *  See also: - [FWContext setCapability::]
+ */
 FW_EXTERN NSString *const FW_CAPABILITY_MULTIPLE_CREATIVE_RENDITIONS;
 
 /**
- *	Event name: slot impression
+ *	Event name: slot impression. Broadcasted when a slot has started.
  */
 FW_EXTERN NSString *const FW_EVENT_SLOT_IMPRESSION;
 
 FW_EXTERN NSString *const FW_EVENT_SLOT_IMPRESSION_END;
 
 /**
- *	Event name: ad impression
+ *	Event name: ad impression. Broadcasted when an ad has started.
  */
 FW_EXTERN NSString *const FW_EVENT_AD_IMPRESSION;
 
 /**
- * 	Event name: ad impression end
+ * 	Event name: ad impression end. Broadcasted when an ad has ended.
  */
 FW_EXTERN NSString *const FW_EVENT_AD_IMPRESSION_END;
 
@@ -547,7 +577,7 @@ FW_EXTERN NSString *const FW_EVENT_AD_MINIMIZE;
 FW_EXTERN NSString *const FW_EVENT_ERROR;
 
 /**
- *	Event name: reseller_no_ad
+ *	Event name: reseller no ad. Broadcasted when FreeWheel fails to get any playable ad from a reseller.
  */
 FW_EXTERN NSString *const FW_EVENT_RESELLER_NO_AD;
 
@@ -582,19 +612,22 @@ FW_EXTERN NSString *const FW_EVENT_PAUSE_BUTTON_CLICKED;
 FW_EXTERN NSString *const FW_EVENT_RESUME_BUTTON_CLCKED;
 
 /**
- *  The way of opening http(s) url: inside app or by external app. NSString "YES, NO" are valid. By default, it is YES.
+ *  Parameter: Open external url inside your app or by external app, @"YES" or @"NO". @"YES" by default.
  */
 FW_EXTERN NSString *const FW_PARAMETER_OPEN_IN_APP;
 
 /**
- *  The key of inAppView close button enable delay time parameter, in seconds. Default is 3 secs.
+ *  Parameter: Timeout value for loading inAppView document in seconds.
+ *
+ *  Note: After the timeout, FreeWheel inAppView's close button will be enabled which allows user to close inAppView.
+ *  Default: 3
  */
 FW_EXTERN NSString *const FW_PARAMETER_IN_APP_VIEW_LOADING_TIMEOUT;
 
 /**
- *  The key of InAppView ToolBar surface render parameter. \n
- *  The value of the parameter is a string of Html5 which will be injected into the surface web page of the ToolBar .\n
- *  The following template is suggested to use:\n
+ *  Parameter: inAppView toolbar.
+ *  The value of the parameter is a string of html5 that renders a toolbar inside the inAppView. The toolbar contains a back button, a forward button and a close button.
+ *  For example:
  *  \n
  *  \<div\>\n
  *		\<div style=\"\"\>\<img ID=\"<b>FW_IN_APP_VIEW_CONTROL_BAR_BACK_BUTTON</b>\"  src=\"data:image/png;base64,<b><i>PNG_BASE64_STRING</i></b>\" width=\"\" height=\"\"/\>\</div\>\n
@@ -603,150 +636,209 @@ FW_EXTERN NSString *const FW_PARAMETER_IN_APP_VIEW_LOADING_TIMEOUT;
  *  \</div\>\n
  *  \n
  *  The <b>FW_IN_APP_VIEW_CONTROL_BAR_BACK_BUTTON</b>, <b>FW_IN_APP_VIEW_CONTROL_BAR_FORWARD_BUTTON</b> and <b>FW_IN_APP_VIEW_CONTROL_BAR_CLOSE_BUTTON</b> IDs have to be kept as such for handling event.\n
- *  The all three <b><i>PNG_BASE64_STRING</i></b>s are replaced one by one with each png's base64 string.\n
- *  The size of img tag and alignment of div tag have to be set properly, e.g. div style can make the close button right aligned.\n
- *  All Safari mobile compatible html5 tag used in body tag are supported, e.g. utilizing table tag to manage layout instead of div tag.
+ *  All three <b><i>PNG_BASE64_STRING</i></b>s are replaced one by one with each png's base64 string.\n
+ *  The size of the <img/> tag and alignment of the div tag have to be set properly, e.g. div style can make the close button right aligned.\n
+ *  All Safari mobile compatible html5 tags used in body tag are supported, for example, you can use table tags to manage the layout instead of div tag shown in the example.
  */
 FW_EXTERN NSString *const FW_PARAMETER_IN_APP_VIEW_TOOLBAR_SURFACE_RENDER;
 
 /**
- *  The key of inAppView navigation bar background color. The value of this property is a NSString in the range 0 to 0xffffff. Both integer and hexadecimal are accpeted, for example 256, 0xffffff
+ *  Parameter: inAppView navigation bar background color. 
+ *  Valid values: NSString representing an integer/hexadecimal from 0 to 0xffffff, for example @"256", @"0xffffff"
  */
 FW_EXTERN NSString *const FW_PARAMETER_IN_APP_VIEW_NAVIGATION_BAR_BACKGROUND_COLOR;
 
 /**
- *  The key of inAppView navigation bar alpha parameter. The value of this property is a NSString in the range 0.0 to 1.0, where 0.0 represents totally transparent and 1.0 represents totally opaque. Default is 1.0
+ *  Parameter: inAppView navigation bar alpha.
+ *  Valid values: NSString representing a float from 0.0 to 1.0, where @"0.0" represents totally transparent and @"1.0" represents totally opaque.
+ *  Default value: @"1.0"
  */
 FW_EXTERN NSString *const FW_PARAMETER_IN_APP_VIEW_NAVIGATION_BAR_ALPHA;
 
 /**
- *  The key of inAppView navigation bar height. The value of this property is a NSString in the range 0% to 100%, comparing to screen height. 
+ *  Parameter: inAppView navigation bar height. 
+ *  Valid values: NSString representing a percentage in the range 0% to 100%, compared to screen height. 
  */
 FW_EXTERN NSString *const FW_PARAMETER_IN_APP_VIEW_NAVIGATION_BAR_HEIGHT;
 
 /**
- *  The key of inAppView webview background color. The value of this property is a NSString in the range 0 to 0xffffff. Default is 0xffffff. Both integer and hexadecimal are accpeted, for example 256, 0xffffff
+ *  Parameter: inAppView background color. 
+ *  Valid values: NSString representing an integer/hexadecimal from 0 to 0xffffff, for example @"256", @"0xffffff"
+ *  Default value: @"0xffffff".
  */
 FW_EXTERN NSString *const FW_PARAMETER_IN_APP_VIEW_WEB_VIEW_BACKGROUND_COLOR;
 
 /**
- *  The key of inAppView webview alpha parameter. The value of this property is a NSString in the range 0.0 to 1.0, where 0.0 represents totally transparent and 1.0 represents totally opaque. Default is 1.0
+ *  Parameter: inAppView webview alpha. 
+ *  Valid values: NSString representing a float from 0.0 to 1.0, where @"0.0" represents totally transparent and @"1.0" represents totally opaque. 
+ *  Default value: @"1.0"
  */
 FW_EXTERN NSString *const FW_PARAMETER_IN_APP_VIEW_WEB_VIEW_ALPHA;
 
 /**
- *	Parameter key. The value of FW_PARAMETER_VIDEO_AD_SCALING_MODE is one of: 
+ *	Parameter: video scaling mode. The value of FW_PARAMETER_VIDEO_AD_SCALING_MODE is one of: 
  *	- FW_PARAMETER_VIDEO_AD_SCALING_MODE_NONE
  *	- FW_PARAMETER_VIDEO_AD_SCALING_MODE_ASPECT_FIT
  *	- FW_PARAMETER_VIDEO_AD_SCALING_MODE_ASPECT_FILL
  *	- FW_PARAMETER_VIDEO_AD_SCALING_MODE_FILL
  */
 FW_EXTERN NSString *const FW_PARAMETER_VIDEO_AD_SCALING_MODE;
+
 FW_EXTERN NSString *const FW_PARAMETER_VIDEO_AD_SCALING_MODE_NONE;
 FW_EXTERN NSString *const FW_PARAMETER_VIDEO_AD_SCALING_MODE_ASPECT_FIT;
 FW_EXTERN NSString *const FW_PARAMETER_VIDEO_AD_SCALING_MODE_ASPECT_FILL;
 FW_EXTERN NSString *const FW_PARAMETER_VIDEO_AD_SCALING_MODE_FILL;
 
 /**
- * The key of using application audio session for video ad renderer. NSString @"YES", @"NO" are valid. Default is @"NO". 
+ *  Parameter: use application audio session for video ad renderer.
+ *  Valid values: NSString @"YES", @"NO"
+ *  Default value: @"NO". 
  */
 FW_EXTERN NSString *const FW_PARAMETER_VIDEO_AD_USE_APPLICATION_AUDIO_SESSION;
 
 /**
- *  The key of countdownTimer display parameter. NSString @"YES", @"NO" are valid. Default is @"NO". This parameter can only be set before the slot play, otherwise no effect
+ *  Parameter: display countdown timer for applicable ads.
+ *  Valid values: NSString @"YES", @"NO". 
+ *  Default value: @"NO". 
+ *  Note: This parameter should be set before slot starts, otherwise has no effect.
  */
 FW_EXTERN NSString *const FW_PARAMETER_COUNTDOWN_TIMER_DISPLAY;
 
 /**
- *  The key of countdownTimer refresh interval parameter, in milliseconds, should be under 1000(included). The value of this parameter is a NSString. Default is 300. This parameter can only be set before the slot play, otherwise no effect
+ *  Parameter: countdown timer refresh interval, in milliseconds.
+ *  Valid values: NSString representing an integer from 1 to 1000.
+ *  Default value: 300.
+ *  Note: This parameter should be set before slot starts, otherwise has no effect.
  */
 FW_EXTERN NSString *const FW_PARAMETER_COUNTDOWN_TIMER_REFRESH_INTERVAL;
 
 /**
- *  The key of countdownTimer js update callback function name parameter. The value of this parameter is a NSString. Default is "updateTimer". This parameter can only be set before the slot play, otherwise no effect
- *		Notes :
- The javascript update callback function should be responsible for displaying countdownTimer content. It can recieve two parameters: playheadTime, duration. They are calculated in seconds.
+ *  Parameter: javascript function name to call when the countdown timer is updated, NSString.
+ *  The javascript function should be available in the document loaded in the UIWebView. By default the function called is "updateTimer". The function will be called with two parameters: the current playhead time of the slot in seconds; the total duration of the slot in seconds:
+    function updateTimer(playheadTime, duration);
+ *  Note: This parameter should be set before slot starts, otherwise has no effect.
  */
 FW_EXTERN NSString *const FW_PARAMETER_COUNTDOWN_TIMER_UPDATE_CALLBACK;
 
 /**
- *  The key of countdownTimer position parameter. NSString "bottom", "top", "x,y" are valid. This parameter can only be set before the slot play, otherwise no effect
- *		Notes :
- *			If you want fix the countdownTimer at a point relative to the player, you can set this parameter to "x,y" which means a point, such as "20, 20".
+ *  Parameter: countdown timer position. 
+ *  Valid values: NSString @"bottom", @"top", and @"x,y", for example @"10,20".
+ *  Note: This parameter should be set before slot starts, otherwise has no effect.
  */
 FW_EXTERN NSString *const FW_PARAMETER_COUNTDOWN_TIMER_POSITION;
 
 /**
- *  The key of countdownTimer alpha parameter. The value of this property is a NSString in the range 0.0 to 1.0, where 0.0 represents totally transparent and 1.0 represents totally opaque. Default is 1.0. This parameter can only be set before the slot play, otherwise no effect
+ *  Parameter: countdown timer alpha. 
+ *  Valid values: NSString representing a float in the range 0.0 to 1.0, where @"0.0" represents totally transparent and @"1.0" represents totally opaque. 
+ *  Default value: @"1.0".
+ *  Note: This parameter should be set before slot starts, otherwise has no effect.
  */
 FW_EXTERN NSString *const FW_PARAMETER_COUNTDOWN_TIMER_ALPHA;
 
 /**
- *  The key of countdownTimer height parameter. The value of this property is a NSString bigger than 0. Default is 20. This parameter can only be set before the slot play, otherwise no effect
+ *  Parameter: countdown timer height in pixels.
+ *  Valid values: NSString representing an integer greater than 0. 
+ *  Default value: @"20".
+ *  Note: This parameter should be set before slot starts, otherwise has no effect.
  */
 FW_EXTERN NSString *const FW_PARAMETER_COUNTDOWN_TIMER_HEIGHT;
 
 /**
- *  The key of countdownTimer width parameter. The value of this property is a NSString. Default is equal to the screen width. This parameter can only be set before the slot play, otherwise no effect
+ *  Parameter: countdown timer width in pixels. 
+ *  Valid values: NSString representing an integer greater than 0.
+ *  Default value: screen width.
+ *  Note: This parameter should be set before slot starts, otherwise has no effect.
  */
 FW_EXTERN NSString *const FW_PARAMETER_COUNTDOWN_TIMER_WIDTH;
 
 /**
- *  The key of countdownTimer text size parameter. The value of this property is a NSString. Default is "medium". This parameter can only be set before the slot play, otherwise no effect
+ *  Parameter: countdown timer font size in css syntax.
+ *  Valid values: css-valid font-size values, for example, @"mediem", @"12px".
+ *  Default value: @"medium".
+ *  Note: This parameter should be set before slot starts, otherwise has no effect.
  */
 FW_EXTERN NSString *const FW_PARAMETER_COUNTDOWN_TIMER_TEXT_SIZE;
 
 /**
- *  The key of countdownTimer background color parameter. The value of this property is a NSString in the range 0 to 0xffffff. Both integer and hexadecimal are accpeted, for example 256, 0xffffff. Default is 0x4a4a4a. This parameter can only be set before the slot play, otherwise no effect
+ *  Parameter: countdown timer background color. 
+ *  Valid values: NSString representing an integer/hexadecimal from 0 to 0xffffff, for example @"256", @"0xffffff"
+ *  Default value: @"0x4a4a4a".
+ *  Note: This parameter should be set before slot starts, otherwise has no effect.
  */
 FW_EXTERN NSString *const FW_PARAMETER_COUNTDOWN_TIMER_BG_COLOR;
 
 /**
- *  The key of countdownTimer font color parameter. The value of this property is a NSString in the range 0 to 0xffffff. Default is 0xffffff. This parameter can only be set before the slot play, otherwise no effect
+ *  Parameter: countdown timer font color. 
+ *  Valid values: NSString representing an integer/hexadecimal from 0 to 0xffffff, for example @"256", @"0xffffff"
+ *  Default value: @"0xffffff".
+ *  Note: This parameter should be set before slot starts, otherwise has no effect.
  */
 FW_EXTERN NSString *const FW_PARAMETER_COUNTDOWN_TIMER_FONT_COLOR;
 
 /**
- *  The key of countdownTimer text font parameter. The value of this property is a NSString. Default is "Arial". This parameter can only be set before the slot play, otherwise no effect
+ *  Parameter: countdown timer font family in css syntax.
+ *  Valid values: css-valid font-family values, NSString.
+ *  Default value: @"Arial".
+ *  Note: This parameter should be set before slot starts, otherwise has no effect.
  */
 FW_EXTERN NSString *const FW_PARAMETER_COUNTDOWN_TIMER_TEXT_FONT;
 
 /**
- *  The key of countdownTimer html parameter. The value of this property is a NSString. We will provide a default timer display html by default. This parameter can only be set before the slot play, otherwise no effect
- *		Notes:
- *			If you set this parameter by yourself, it should contains a javascript method used to display the countdownTimer content. 
- *			You need to set this javascript function name to the parameter FW_PARAMETER_COUNTDOWN_TIMER_UPDATE_CALLBACK.
+ *  Parameter: countdown timer html.
+ *  Valid values: html snippet displaying a countdown timer, NSString. 
+ *  Default value: a default timer display html will be provided by default. If you set this parameter by yourself, there should also be a javascript function that updates it periodically. See - FW_PARAMETER_COUNTDOWN_TIMER_UPDATE_CALLBACK for details.
+ *  Note: This parameter should be set before slot starts, otherwise has no effect.
  */
 FW_EXTERN NSString *const FW_PARAMETER_COUNTDOWN_TIMER_HTML;
 
 /**
- *  Track the visibility of nontemporal slot automatically. When a nontemporal slot is visible, it will be played immediately. 
- *  NSString "YES, NO" are valid values. By default, it is NO.
+ *  Parameter: Track the visibility of nontemporal slot automatically. When it is set to @"YES", non-temporal slots will be played automatically once it is detected on the device screen. 
+ *  Valid values: NSString @"YES", @"NO"
+ *  Default value: @"NO"
  */
 FW_EXTERN NSString *const FW_PARAMETER_NONTEMPORAL_SLOT_VISIBILITY_AUTO_TRACKING;
 
 /**
- *  The key of pause ad enable parameter. NSString @"YES", @"NO" are valid. Default is @"NO". This parameter can only be set before FW_NOTIFICATION_REQUEST_COMPLETE, otherwise no effect
+ *  Parameter: enable pause ads.
+ *  Valid values: NSString @"YES", @"NO"
+ *  Default value: @"NO"
+ *  Note: this parameter indicates whether pause ads should be enabled, and should be set before you send an ad request. When set to @"YES", ad server will return pause ads if available in MRM.
  */
 FW_EXTERN NSString *const FW_PARAMETER_PAUSEAD_ENABLE;
 
 /**
- *  Key of FW_NOTIFICATION_REQUEST_COMPLETE notification's userInfo dictionary.
+ *  UserInfo dictionary key: url
+ *  The url user clicks.
+ *  Applicable event: FW_EVENT_AD_CLICK
+ */
+FW_EXTERN NSString *const FW_INFO_KEY_URL;
+
+
+/**
+ *  UserInfo dictionary key: error
+ *  Error message of a failed ad request.
+ *  Applicable notification: FW_NOTIFICATION_REQUEST_COMPLETE
  */
 FW_EXTERN NSString *const FW_INFO_KEY_ERROR;
 
 /**
- *  Key of FW_NOTIFICATION_SLOT_STARTED, FW_NOTIFICATION_SLOT_ENDED & FW_NOTIFICATION_AD_* notification's userInfo dictionary. Its value is slot's custom id.
+ *  UserInfo dictionary key: slot custom ID
+ *  Custom ID of the related slot.
+ *  Applicable notification: FW_NOTIFICATION_SLOT_STARTED, FW_NOTIFICATION_SLOT_ENDED, FW_NOTIFICATION_AD_*
  */
 FW_EXTERN NSString *const FW_INFO_KEY_CUSTOM_ID;
 
 /**
- *  Key of FW_NOTIFICATION_AD_* notification's userInfo dictionary. Its value is ad's id.
+ *  UserInfo dictionary key: ad ID
+ *  ID of the related ad.
+ *  Applicable notification: FW_NOTIFICATION_AD_*
  */
 FW_EXTERN NSString *const FW_INFO_KEY_AD_ID;
 
 /**
- *  Key of FW_NOTIFICATION_AD_* notification's userInfo dictionary. Its value is creative's id.
+ *  UserInfo dictionary key: creative ID
+ *  ID of the related creative.
+ *  Applicable notification: FW_NOTIFICATION_AD_*
  */
 FW_EXTERN NSString *const FW_INFO_KEY_CREATIVE_ID;
 
@@ -754,7 +846,8 @@ FW_EXTERN NSString *const FW_INFO_KEY_USER_ACTION;
 
 
 /**
- *  Key of the dictionary returned by -[FWRenderer moduleInfo]. Its value is FW_MODULE_TYPE_*
+ *  Key of the dictionary returned by -[FWRenderer moduleInfo].
+ *  Valid values: FW_MODULE_TYPE_RENDERER, FW_MODULE_TYPE_TRANSLATOR
  */
 FW_EXTERN NSString *const FW_INFO_KEY_MODULE_TYPE;
 
@@ -766,30 +859,32 @@ FW_EXTERN NSString *const FW_INFO_KEY_MODULE_TYPE;
 FW_EXTERN NSString *const FW_INFO_KEY_REQUIRED_API_VERSION;
 
 /**
- *  Value for key FW_INFO_KEY_MODULE_TYPE 
+ *  Renderer type: renderer.
+ *  See also: FW_INFO_KEY_MODULE_TYPE
  */
 FW_EXTERN NSString *const FW_MODULE_TYPE_RENDERER;
 
 /**
- *  Value for key FW_INFO_KEY_MODULE_TYPE 
+ *  Renderer type: translator.
+ *  See also: FW_INFO_KEY_MODULE_TYPE
  */
 FW_EXTERN NSString *const FW_MODULE_TYPE_TRANSLATOR;
 
 /**
  *  Key of the info dictionary in -[FWRendererController handleStateTransition:FW_RENDERER_STATE_FAILED info:details]. 
- *  Its value is FW_ERROR_*
+ *  Valid values: FW_ERROR_*
  */
 FW_EXTERN NSString *const FW_INFO_KEY_ERROR_CODE;
 
 /**
  *  Key of the info dictionary in -[FWRendererController handleStateTransition:FW_RENDERER_STATE_FAILED info:details]. 
- *  Its value is the error's detailed description message. 
+ *  Valid values: detailed error description message in NSString
  */
 FW_EXTERN NSString *const FW_INFO_KEY_ERROR_INFO;
 
 /**
  *  Key of the info dictionary in -[FWRendererController handleStateTransition:FW_RENDERER_STATE_FAILED info:details]. 
- *  Its value is FW_MODULE_TYPE_*
+ *  Valid values: FW_MODULE_TYPE_*
  */
 FW_EXTERN NSString *const FW_INFO_KEY_ERROR_MODULE;
 
@@ -854,22 +949,29 @@ FW_EXTERN NSString *const FW_ERROR_NO_RENDERER;
 FW_EXTERN NSString *const FW_ERROR_IN_APP_VIEW;
 
 /**
- *  Value for key FW_ERROR_3P_COMPONENT
+ *  Value for key FW_INFO_KEY_ERROR_CODE
  */
 FW_EXTERN NSString *const FW_ERROR_3P_COMPONENT;
 
 /**
- *  Value for key FW_ERROR_UNSUPPORTED_3P_FEATURE
+ *  Value for key FW_INFO_KEY_ERROR_CODE
  */
 FW_EXTERN NSString *const FW_ERROR_UNSUPPORTED_3P_FEATURE;
 
 /**
- *  Key of the details dictionary passed to -[FWRendererController processEvent::]. Its value is the custom event name to be processed.
+ *  Dictionary key: Custom event name
+ *  See - [FWRendererController processEvent::] for details.
+ *  Valid values: custom event name to be processed in NSString
  */
 FW_EXTERN NSString *const FW_INFO_KEY_CUSTOM_EVENT_NAME; 
 
 /**
  *  Key of the details dictionary passed to -[FWRendererController processEvent::]. Its value is @"YES" or @"NO".
+ */
+/**
+ *  Dictionary key: show browser
+ *  See - [FWRendererController processEvent::] for details.
+ *  Valid values: NSString @"YES" or @"NO" indicating whether the click results in the opening of a new browser tab/window.
  */
 FW_EXTERN NSString *const FW_INFO_KEY_SHOW_BROWSER;
 
@@ -879,76 +981,75 @@ FW_EXTERN NSString *const FW_INFO_KEY_SHOW_BROWSER;
 FW_EXTERN NSString *const FW_INFO_KEY_VIDEO_DISPLAY_BASE;
 
 /**
- *  Specify the postal code of the user for targeting passthrough to 3rd party component.
+ *  Specify the postal code of the user for targeting passed through to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_POSTAL_CODE;
 
 /**
- *  Specify the area code of the user's phone for targeting passthrough to 3rd party component.
+ *  Specify the area code of the user's phone for targeting passed through to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_AREA_CODE;
 
 /**
- *  Specify the user's date of birth for targeting passthrough to 3rd party component.
+ *  Specify the user's date of birth for targeting passed through to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_DATE_OF_BIRTH;
 
 /**
- *  Specify the user's gender for targeting passthrough to 3rd party component.
+ *  Specify the user's gender for targeting passed through to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_GENDER;
 
 /**
- *  Specify a list of keywords for targeting passthrough to 3rd party component.
+ *  Specify a list of keywords for targeting passed through to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_KEYWORDS;
 
 /**
- *  Specify the area code of the user’s phone for targeting passthrough to 3rd party component.
+ *  Specify the area code of the user’s phone for targeting passed through to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_SEARCH_STRING;
 
 /**
- *  Specify the user's marital status for targeting passthrough to 3rd party component.
+ *  Specify the user's marital status for targeting passed through to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_MARITAL;
 
 /**
- *  Specify the user's ethnicity for targeting passthrough to 3rd party component.
+ *  Specify the user's ethnicity for targeting passed through to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_ETHNICITY;
 
 /**
- *  Specify the user's orientation for targeting passthrough to 3rd party component.
+ *  Specify the user's orientation for targeting passed through to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_ORIENTATION;
 
 /**
- *  Specify the user's income for targeting passthrough to 3rd party component.
+ *  Specify the user's income for targeting passed through to 3rd party component.
  */
 FW_EXTERN NSString *const FW_PARAMETER_INCOME;
 
 /**
- *	Specify the whether AdManager handle temporal ad click. value should 'true'/'false' or 'on'/'off' or 'yes'/'no' 
- *	if the value is set to no/false/off, app should handle the ad click by a UIView.
+ *  Parameter: indicates whether AdManager should handle user tapping on a temporal ad.
+ *  Valid values: NSString @"YES", @"NO"
+ *  Default value: @"YES".
+ *  Note: if the value is set to @"NO", app should handle the ad click by itself, for example, opening the click through url in a UIWebView.
  */
 FW_EXTERN NSString *const FW_PARAMETER_CLICK_DETECTION;
 
 /**
- *  The key of available desired bitrate limitation.\n 
- *  The value of this property is a NSString with positive decimal floating point number.The default value of the key is \@\"1000.0\".\n
- *  The value is used to select best creative rendition.\n
+ *  Parameter: desired bitrate. Indicates current viewer's available bandwidth.
+ *  Valid values: NSString representing a positive decimal float.
+ *  Default value: @"1000.0"
+ *  Note: the value is used in creative rendition selection. AdManager will automatically choose the best fit rendition according to current view's bandwidth.
  */
 FW_EXTERN NSString *const FW_PARAMETER_DESIRED_BITRATE;
 
 /**
- *  The key of available desired orientation of rendition selection algorithm. It only takes effect in full screen mode.\n 
- *  The value of this property is a NSString.\n
- *  <ul><li>If it is not set, the application status bar orientation is used.
- *  	<li>It can be set to one of \@\"portrait\" and \@\"landscape\".
- *  	<ul><li> If it is set to \@\"portrait\", the smaller of UIScreen width and height will be selected as width and the bigger of UIScreen width and height will be selected as height.
- *		  <li> The \@\"landscape\" is opposite to \@\"portrait\".
- *	  </ul>
- *  </ul>	
+ *  Parameter: desired interface orientation. Indicates current interface orientation.
+ *  Valid values: NSString @"portrait", @"landscape"
+ *  Default value: current application status bar orientation.
+ *  Note: the value is used in creative rendition selection. AdManager will automatically choose the best fit rendition according to desired interface orientation.
  */
 FW_EXTERN NSString *const FW_PARAMETER_DESIRED_ORIENTATION;

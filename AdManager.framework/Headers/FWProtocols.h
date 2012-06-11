@@ -36,14 +36,14 @@ FW_EXTERN void FWSetLogLevel(FWLogLevel value);
 /**
  *	\fn void FWSetUncaughtExceptionHandler(NSUncaughtExceptionHandler *handler)
  *	AdManager registers NSSetUncaughtExceptionHandler() to report uncaught exception.
- *	If app need to perform last-minute logging before the program terminates, use this function instead of NSSetUncaughtExceptionHandler.
+ *	If app needs to perform last-minute logging before the program terminates, use this function instead of NSSetUncaughtExceptionHandler.
  *	\param handler
  */
 FW_EXTERN void FWSetUncaughtExceptionHandler(NSUncaughtExceptionHandler *handler);
 
 /** 
  *	\fn void FWClearCookie();
- *	Clear All cookies from fwmrm.net domains.
+ *	Clear all cookies from fwmrm.net domains.
  */
 FW_EXTERN void FWClearCookie(void);
 
@@ -66,28 +66,28 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
  */
 @protocol FWAdManager <NSObject>
 /**
- *	Set application's current view controller. This value is REQUIRED. Application must be view controller based.
- *	This value is retained by FWAdManager. 
+ *	Set application's current view controller. REQUIRED. Application must be view controller based.
+ *	This view controller set will be retained by FWAdManager. 
  *
- *	\param value
+ *	\param value    current view controller
  */
 - (void)setCurrentViewController:(UIViewController *)value;
 
 /**
- *	Set the FreeWheel ad server http address. This value will be used by FWContext objects created from this FWAdManager object.
+ *	Set the ad server URL provided by FreeWheel. REQUIRED. Consult your FreeWheel sales engineer for the value.
  *	\param	value	url of the FreeWheel Ad Server
  */
 - (void)setServerUrl:(NSString *)value;
 
 /**
- *	Set the network id of the distributor. This value will be used by FWContext objects created from this FWAdManager object.
- *	\param	value	network id of the distributor
+ *	Set the network ID of the distributor. REQUIRED. Consult your FreeWheel sales engineer for the value.
+ *	\param	value	network ID of the distributor
  */
 - (void)setNetworkId:(NSUInteger)value;
 
 /**
- *	Set the current location of device. This value will be used by FWContext objects created from this FWAdManager object for geo targeting.
- *	\param	value	value of the location to be set. nil has no effect.
+ *	Set the current location of the device. This value will only be used for geo targeting purposes.
+ *	\param	value	device's current location, CLLocation. nil by default.
  */
 - (void)setLocation:(CLLocation *)value;
 
@@ -98,17 +98,16 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (NSUInteger)version;
 
 /**
- *	Create a new context 
- *	A Context instance is used to set ad request information for a particular ad or ad set.  Multiple contexts can be created throughout the lifecycle of the FreeWheel AdManager and may exist siumultaneously without consequence. Multiple simultaneous contexts are useful to optimize user experience in the network-resource limited environment.
+ *	Create a new FWContext instance
+ *	A FWContext instance is used to set ad request information for a particular ad or ad set.  Multiple contexts can be created throughout the lifecycle of the FreeWheel AdManager and may exist siumultaneously without consequence. Multiple simultaneous contexts are useful to optimize user experience in the network-resource limited environment.
  *	\return	an id<FWContext>
  */
 - (id<FWContext>)newContext;
 
 /**
- *	Create a new context from the given context. The new context copies internal state of the old one for submitting new ad request.
+ *	Create a new context from the given context. The new context copies internal state and information of the old one, so you can use this method to create an identical context without having to set all the information again.
  *		
- *	Following methods are called automatically on the new context with values of the old one.
- *	These methods DO NOT NEED to call again on the new context: 
+ *	The following methods are called automatically on the new context with values of the old one.
  *		-	-[FWContext setRequestMode:]
  *		-	-[FWContext setCapability:]
  *		-	-[FWContext setVisitor:]
@@ -122,15 +121,17 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
  *		-	-[FWContext setVideoState:]
  *		-	-[FWContext setMoviePlayerFullscreen:]
  *
- *	Following methods are REQUIRED to call again on the new context:
+ *	You are required to call the following methods again on the new context:
  *		-	-[NSNotificationCeneter addObserver:selector:name:object:] 	(add notification observer for the new context)
+ *      -   -[FWContext addTemporalSlot:] (if there's any)
+ *      -   -[FWContext addSiteSectionNonTemporalSlot:] (if there's any)
+ *      -   -[FWContext addVideoPlayerNonTemporalSlot:] (if there's any)
  *		-	-[FWContext submitRequest:]
- *		
  */
 - (id<FWContext>)newContextWithContext:(id<FWContext>)context;
 
 /**
- *	By default AdManager will send report to AdServer when crash, this API will disable the function
+ *	Disable FreeWheel crash reporter. By default AdManager will send a crash report to ad server when an app crash is detected.
  */
 - (void)disableFWCrashReporter;
 @end
@@ -140,19 +141,19 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
  */
 @protocol FWContext <NSObject>
 /**
- *	Set context level temporal slot base. Video ad are rendererd upon the base view with the same size.
- *	If video display base view changes, app needs to invoke this method again, renderer will display video ad on the updated base; if video display base view does not change but its frame changes, app does not need to invoke this method again, renderer re-layout video ad according to to the new frame automatically.
- *	Prior to AdManager 3.8, renderer assume main video's MPMoviePlayerController view is the video display base. Starting from AdManager 3.8, for iOS>=3.2, app must invoke this method to speicify video display base explicitly. For iOS3.0-3.1, app does not need to invoke this method since the legacy MPMoviePlayerController is always played in fullscreen.
+ *	Set context level video display. Video ad are rendererd within the base view with the same frame.
+ *	When video display base view changes, app needs to call this method again with the new video display to notify AdManager to render video ads in the updated video display. App does not need to call this method when video display view's frame changes.
+ *	Prior to AdManager 3.8, renderer assumes main video's MPMoviePlayerController view is the video display base. Starting from AdManager 3.8, for iOS>=3.2, app must invoke this method to speicify video display base explicitly. For iOS3.0-3.1, app does not need to invoke this method since the legacy MPMoviePlayerController is always played in fullscreen.
  */
 - (void)setVideoDisplayBase:(UIView *)value;
 
 /**
  *	Set the main video's movie player fullscreen mode for rendering video ad.
  *	If application sets main video's MPMoviePlayerController fullscreen as YES or 
- *	present MPMoviePlayerViewController as a modal view, this value should be
- *	set as YES.
+ *	present MPMoviePlayerViewController in a modal view, this value should be
+ *	set to YES.
  *	
- *	\param	value	default behavior is non-fullscreen
+ *	\param	value fullscreen. NO by default.
  *
  *	Availability: iOS >= 3.2 
  */
@@ -160,8 +161,7 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 
 /**
  *	Deprecated!
- *	Please use setVideoDisplayBase: to set a UIView for temporal ad to display
- *	Or use setMoviePlayerFullscreen: if contentVideo always play in fullscreen mode
+ *	Please use setVideoDisplayBase: to set a UIView instance for non-fullscreen video player to display video ads, or use setMoviePlayerFullscreen:YES if content video is played in fullscreen mode.
  */
 - (void)setMoviePlayerController:(MPMoviePlayerController *)value;
 
@@ -177,24 +177,24 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (BOOL)setCapability:(NSString *)capability :(FWCapabilityStatus)status;
 
 /**
- *	Add the key-value pair, if add different values with the same key, they will both the values for the key
- *	\param	key		key name of the key-value pair to be set, nil or empty string will no effect
- *	\param	value	value of the key to be set. nil has no effect.
+ *	Add a key-value pair. The key-value pair is used in ad targeting. If called with the same key multiple times, all the values will be added to the same key.
+ *	\param	key		key of the key-value pair, NSString. Can not be nil or empty
+ *	\param	value	value of the key-value pair, NSString. Can not be nil
  */
 - (void)addKeyValue:(NSString *)key :(NSString *)value;
 
 /**
- *	Set the profiles which describes the player and slots
+ *	Set the profiles names. Consult your FreeWheel sale engineer for available values.
  *	\param	playerProfile					name of the global profile
- *	\param	defaultTemporalSlotProfile		name of the temporal slot default profile, nil for default
- *	\param	defaultVideoPlayerSlotProfile	name of the video player slot default profile, nil for default
- *	\param	defaultSiteSectionSlotProfile	name of the site section slot default profile, nil for default
+ *	\param	defaultTemporalSlotProfile		name of the temporal slot default profile, nil by default
+ *	\param	defaultVideoPlayerSlotProfile	name of the video player slot default profile, nil by default
+ *	\param	defaultSiteSectionSlotProfile	name of the site section slot default profile, nil by default
  */
 - (void)setProfile:(NSString *)playerProfile :(NSString *)defaultTemporalSlotProfile :(NSString *)defaultVideoPlayerSlotProfile :(NSString *)defaultSiteSectionSlotProfile;
 
 /**
  *	Set the attributes of the visitor
- *	\param	customId		custom id of the visitor
+ *	\param	customId		custom ID of the visitor
  *	\param	ipV4Address		ip address of the visitor
  *	\param	bandwidth		bandwidth of the visitor
  *	\param	bandwidthSource	bandwidth source of the visitor
@@ -203,27 +203,27 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 
 /**
  *	Set the HTTP headers of the visitor
- *	\param	name	name of the header to be set
- *	\param	value	value of the header to be set, nil to remove
+ *	\param	name	name of the header
+ *	\param	value	value of the header. If set to nil, the original value of the HTTP header name will be removed.
  */
 - (void)setVisitorHttpHeader:(NSString *)name :(NSString *)value;
 
 /**
- *	Set the attributes of current video asset to play
- *	\param	videoAssetId	id of the video
+ *	Set the attributes of the current video asset
+ *	\param	videoAssetId	id of the video asset
  *	\param	duration		duration of the video in seconds
- *	\param	location		location of the video, nil for default
- *	\param	autoPlayType	whether the video begins to play automatically without user interaction
+ *	\param	location		location(URI) of the video, nil by default
+ *	\param	autoPlayType	whether the video starts playing automatically without user interaction
  *								-	FW_VIDEO_ASSET_AUTO_PLAY_TYPE_NONE
- *								-	FW_VIDEO_ASSET_AUTO_PLAY_TYPE_ATTENDED		default
+ *								-	FW_VIDEO_ASSET_AUTO_PLAY_TYPE_ATTENDED		(default)
  *								-	FW_VIDEO_ASSET_AUTO_PLAY_TYPE_UNATTENDED
- *	\param	videoPlayRandom	random number that is generated each time a user watches this video asset.
- *	\param	networkId		id of the network the video belongs to, 0 for default
- *	\param	idType			type of video id above, should be one of
+ *	\param	videoPlayRandom	random number generated everytime a user watches the video asset
+ *	\param	networkId		id of the network the video belongs to, 0 by default
+ *	\param	idType			type of video id, should be one of
  *								-	FW_ID_TYPE_CUSTOM
  *								-	FW_ID_TYPE_FW
  *								-	FW_ID_TYPE_FWGROUP
- *	\param	fallbackId		video id to fallback, if id specified by the 1st parameter is not found, 0 for default
+ *	\param	fallbackId		video ID to fallback to. When ad server fails to find the video asset specified by videoAssetId, this ID will be used. 0 by default
  *	\param	durationType	type of duration, should be one of
  *								-	FW_VIDEO_ASSET_DURATION_TYPE_EXACT		default
  *								-	FW_VIDEO_ASSET_DURATION_TYPE_VARIABLE	for live video
@@ -231,7 +231,7 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (void)setVideoAsset:(NSString *)videoAssetId :(NSTimeInterval)duration :(NSString *)location :(FWVideoAssetAutoPlayType)autoPlayType :(NSUInteger)videoPlayRandom :(NSUInteger)networkId :(FWIdType)idType :(NSUInteger)fallbackId :(FWVideoAssetDurationType)durationType;
 
 /**
- *	Set the current logical time position of the content asset.
+ *	Set the current time position of the content asset.
  *	\param	timePosition	time position value in seconds.
  *	
  *	Notes:
@@ -241,52 +241,52 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 /**
  *	Set the attributes of the site section
  *	\param	siteSectionId	id of the site section
- *	\param	pageViewRandom	unique id for current playing
- *	\param	networkId		id of the network the site section belongs to, 0 for default
- *	\param	idType			type of the id above, should be one of
+ *	\param	pageViewRandom	random number generated everytime a user visits current site section
+ *	\param	networkId		id of the network the site section belongs to, 0 by default
+ *	\param	idType			type of the ID, should be one of
  *								-	FW_ID_TYPE_CUSTOM
  *								-	FW_ID_TYPE_FW
  *								-	FW_ID_TYPE_FWGROUP
- *	\param	fallbackId		site section id to fallback, if id specified by the 1st parameter is not found, 0 for default
+ *	\param	fallbackId		site section ID to fallback to. When ad server fails to find the site section specified by siteSectionId, this ID will be used. 0 by default
  */
 - (void)setSiteSection:(NSString *)siteSectionId :(NSUInteger)pageViewRandom :(NSUInteger)networkId :(FWIdType)idType :(NSUInteger)fallbackId;
 
 /**
- *	Add candidate ads for the request to FreeWheel Ad Server
+ *	Add candidate ads into the ad request
  *	\param	candidateAdId	id of the candidate ad
  */
 - (void)addCandidateAd:(NSUInteger)candidateAdId;
 
 /**
  *	Add a temporal slot
- *	\param	customId					custom id of the slot, add a slot with an identical name as existing slot will be ignored
+ *	\param	customId					custom ID of the slot. If slot with specified ID already exists, the function call will be ignored.
  *	\param	adUnit						ad unit supported by the slot
  *	\param	timePosition				time position of the slot
- *	\param	slotProfile					profile name of the slot, nil for default
- *	\param	cuePointSequence			sequence of the cuePoint of the slot
- *	\param	maxDuration					maximum duration of the slot allowed, 0 for default
- *	\param	acceptPrimaryContentType	accepted primary content types, use "," as delimiter, nil for default
- *	\param	acceptContentType			accepted content types, use "," as delimiter, nil for default
- *	\param	minDuration					minimum duration of the slot allowed, 0 for default
+ *	\param	slotProfile					profile name of the slot, nil by default
+ *	\param	cuePointSequence			slot cue point sequence
+ *	\param	maxDuration					maximum duration of the slot allowed, 0 by default
+ *	\param	acceptPrimaryContentType	accepted primary content types, comma separated values, use "," as delimiter, nil by default
+ *	\param	acceptContentType			accepted content types, comma separated values, use "," as delimiter, nil by default
+ *	\param	minDuration					minimum duration of the slot allowed, 0 by default
  */
 - (void)addTemporalSlot:(NSString *)customId :(NSString *)adUnit :(NSTimeInterval)timePosition :(NSString *)slotProfile :(NSUInteger)cuePointSequence :(NSTimeInterval)maxDuration :(NSString *)acceptPrimaryContentType :(NSString *)acceptContentType :(NSTimeInterval)minDuration;
 
 /**
  *	Add a video player non-temporal slot.
- *	\param	customId					custom id of the slot, add a slot with an identical name as existing slot will be ignored
+ *	\param	customId					custom ID of the slot. If slot with specified ID already exists, the function call will be ignored.
  *	\param	adUnit						ad unit supported by the slot
  *	\param	width						width of the slot
  *	\param	height						height of the slot
- *	\param	slotProfile					profile name of the slot, nil for default
- *	\param	acceptCompanion				whether to accept companion ads on this slots
- *	\param	initialAdOption				choice of the initial ad of this slot, should be one of
+ *	\param	slotProfile					profile name of the slot, nil by default
+ *	\param	acceptCompanion				whether companion ads are accepted
+ *	\param	initialAdOption				choice of the initial ad in this slot, should be one of
  *		- FW_SLOT_OPTION_INITIAL_AD_STAND_ALONE: Display a new ad in this slot
  *		- FW_SLOT_OPTION_INITIAL_AD_KEEP_ORIGINAL: Keep the original ad in this slot
- *		- FW_SLOT_OPTION_INITIAL_AD_FIRST_COMPANION_ONLY: Ask ad server to fill this slot with the first companion ad, or keep the original ad if there is no companion ad
- *		- FW_SLOT_OPTION_INITIAL_AD_FIRST_COMPANION_OR_STAND_ALONE: Ask ad server to fill this slot with the first companion ad, or display a new ad if there is no companion ad
- *	\param	acceptPrimaryContentType	accepted primary content types, use "," as delimiter, nil for default
- *	\param	acceptContentType			accepted content types, use "," as delimiter, nil for default
- *	\param	compatibleDimensions	an array of compatible dimensions, The dimension must be a NSDictionary object with key 'width' and key 'height', the value of key is int. examples:
+ *		- FW_SLOT_OPTION_INITIAL_AD_FIRST_COMPANION_ONLY: Ask ad server to fill this slot with the first companion ad, or keep the original ad if there is no companion ad available
+ *		- FW_SLOT_OPTION_INITIAL_AD_FIRST_COMPANION_OR_STAND_ALONE: Ask ad server to fill this slot with the first companion ad, or display a new ad if there is no companion ad available
+ *	\param	acceptPrimaryContentType	accepted primary content types, comma separated values, use "," as delimiter, nil by default
+ *	\param	acceptContentType			accepted content types, comma separated values, use "," as delimiter, nil by default
+ *	\param	compatibleDimensions        an array of compatible dimensions, The dimension must be a NSDictionary object with key @'width' and @'height', the value of should be a positive integer. Examples:
  *		-	NSArray *keys = [NSArray arrayWithObjects:@"width", @"height", nil];
  *		-	NSArray *dimension1 = [NSArray arrayWithObjects:[NSNumber numberWithInt:1980], [NSNumber numberWithInt:1080], nil];
  *		-	NSArray *dimension2 = [NSArray arrayWithObjects:[NSNumber numberWithInt:1280], [NSNumber numberWithInt:720], nil];
@@ -296,20 +296,20 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 
 /**
  *	Add a site section non-temporal slot
- *	\param	customId					custom id of the slot, adding a slot with an identical name as existing slot will be ignored
+ *	\param	customId					custom ID of the slot. If slot with specified ID already exists, the function call will be ignored.
  *	\param	adUnit						ad unit supported by the slot
  *	\param	width						width of the slot
  *	\param	height						height of the slot
- *	\param	slotProfile					profile name of the slot, nil for default
- *	\param	acceptCompanion				whether to accept companion ads on this slots
- *	\param	initialAdOption				choice of the initial ad of this slot, should be one of
+ *	\param	slotProfile					profile name of the slot, nil by default
+ *	\param	acceptCompanion				whether companion ads are accepted
+ *	\param	initialAdOption				choice of the initial ad in this slot, should be one of
  *		- FW_SLOT_OPTION_INITIAL_AD_STAND_ALONE: Display a new ad in this slot
  *		- FW_SLOT_OPTION_INITIAL_AD_KEEP_ORIGINAL: Keep the original ad in this slot
- *		- FW_SLOT_OPTION_INITIAL_AD_FIRST_COMPANION_ONLY: Ask ad server to fill this slot with the first companion ad, or keep the original ad if there is no companion ad
- *		- FW_SLOT_OPTION_INITIAL_AD_FIRST_COMPANION_OR_STAND_ALONE: Ask ad server to fill this slot with the first companion ad, or display a new ad if there is no companion ad
- *	\param	acceptPrimaryContentType	accepted primary content types, use "," as delimiter, nil for default
- *	\param	acceptContentType			accepted content types, use "," as delimiter, nil for default
- *	\param	compatibleDimensions	an array of compatible dimensions, The dimension must be a NSDictionary object with key 'width' and key 'height', the value of key is int. examples:
+ *		- FW_SLOT_OPTION_INITIAL_AD_FIRST_COMPANION_ONLY: Ask ad server to fill this slot with the first companion ad, or keep the original ad if there is no companion ad available
+ *		- FW_SLOT_OPTION_INITIAL_AD_FIRST_COMPANION_OR_STAND_ALONE: Ask ad server to fill this slot with the first companion ad, or display a new ad if there is no companion ad available
+ *	\param	acceptPrimaryContentType	accepted primary content types, comma separated values, use "," as delimiter, nil by default
+ *	\param	acceptContentType			accepted content types, comma separated values, use "," as delimiter, nil by default
+ *	\param	compatibleDimensions        an array of compatible dimensions, The dimension must be a NSDictionary object with key @'width' and @'height', the value of should be a positive integer. Examples:
  *		-	NSArray *keys = [NSArray arrayWithObjects:@"width", @"height", nil];
  *		-	NSArray *dimension1 = [NSArray arrayWithObjects:[NSNumber numberWithInt:1980], [NSNumber numberWithInt:1080], nil];
  *		-	NSArray *dimension2 = [NSArray arrayWithObjects:[NSNumber numberWithInt:1280], [NSNumber numberWithInt:720], nil];
@@ -318,8 +318,8 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (void)addSiteSectionNonTemporalSlot:(NSString *)customId :(NSString *)adUnit :(NSUInteger)width :(NSUInteger)height :(NSString *)slotProfile :(BOOL)acceptCompanion :(FWInitialAdOption)initialAdOption :(NSString *)acceptPrimaryContentType :(NSString *)acceptContentType :(NSArray *)compatibleDimensions;
 
 /**
- *	Set the video play status
- *	\param	videoState	the type of the state, should be one of:
+ *	Set the current state of the video
+ *	\param	videoState	video state, should be one of:
  *		-	FW_VIDEO_STATE_PLAYING
  *		-	FW_VIDEO_STATE_PAUSED
  *		-	FW_VIDEO_STATE_STOPPED
@@ -328,33 +328,39 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (void)setVideoState:(FWVideoState)videoState;
 
 /**
- *	Get all the temporal slots
- *	\return An Array of id<FWSlot> objects
+ *	Get all temporal slots
+ *	\return An NSArray of id<FWSlot> objects
  */
 - (NSArray * /* id<FWSlot> */)temporalSlots;
 
 /**
- *	Get all the video player non-temporal slots
- *	\return An Array of id<FWSlot> objects
+ *	Get all video player non-temporal slots
+ *	\return An NSArray of id<FWSlot> objects
  */
 - (NSArray * /* id<FWSlot> */)videoPlayerNonTemporalSlots;  
 
 /**
- *	Get all the site section non-temporal slots
- *	\return An Array of id<FWSlot> objects
+ *	Get all site section non-temporal slots
+ *	\return An NSArray of id<FWSlot> objects
  */
 - (NSArray * /* id<FWSlot> */)siteSectionNonTemporalSlots;  
 
 /**
  *	Get all slots in specified time position class
- *	\param	timePositionClass	the value indicating time position class
+ *	\param	timePositionClass	time position class, should be one of:
+ *   - FW_TIME_POSITION_CLASS_PREROLL
+ *   - FW_TIME_POSITION_CLASS_MIDROLL
+ *   - FW_TIME_POSITION_CLASS_POSTROLL
+ *   - FW_TIME_POSITION_CLASS_OVERLAY
+ *   - FW_TIME_POSITION_CLASS_DISPLAY
+ *   - FW_TIME_POSITION_CLASS_PAUSE_MIDROLL
  *	\return An Array of id<FWSlot> objects
  */
 - (NSArray * /* id<FWSlot> */)getSlotsByTimePositionClass:(FWTimePositionClass)timePositionClass;
 
 /**
- *	Get a slot by its customId
- *	\param	customId	custom id of the slot
+ *	Get a slot by its custom ID
+ *	\param	customId	custom ID of the slot
  *	\return An id<FWSlot> object, or nil if not found
  */
 - (id<FWSlot>)getSlotByCustomId:(NSString *)customId;
@@ -367,18 +373,18 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 
 /**
  *	Submit the request to FreeWheel Ad Server
- *	\param	timeoutInterval	time out time in second for this request. 3 secs by default.
+ *	\param	timeoutInterval ad request timeout value in seconds. 3 by default.
  */
 - (void)submitRequest:(NSTimeInterval)timeoutInterval;
 
 - (void)addRendererClass:(NSString *)className forContentType:(NSString *)contentType creativeAPI:(NSString *)creativeAPI slotType:(NSString *)slotType baseUnit:(NSString *)baseAdUnit adUnit:(NSString *)soldAsAdUnit withParameters:(NSDictionary *)parameters;
 
 /**
- *	Set the parameters for a special level. 
+ *	Set a parameter on a specified level. 
  *	
- *	\param	name	key of the parameter to be set
- *	\param	value	value for the key
- *	\param	level	level of the parameters, must be one of:
+ *	\param	name    parameter name
+ *	\param	value	parameter value
+ *	\param	level	level of the parameter, must be one of:
  *					-	FW_PARAMETER_LEVEL_GLOBAL
  *					-	FW_PARAMETER_LEVEL_OVERRIDE					
  */
@@ -386,14 +392,14 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 
 /**
  *	Retrieve a parameter
- *  \param  name  The name of the parameter need to retrieve
+ *  \param  name  The name of the parameter
  */
 - (id)getParameter:(NSString *)name;
 
 /**
  *	Set a list of acceptable alternative dimensions
  *	
- *	\param	compatibleDimensions	an array of compatible dimensions, The dimension must be a NSDictionary object with key 'width' and key 'height', the value of key is int. examples:
+ *	\param	compatibleDimensions	an array of compatible dimensions, The dimension must be a NSDictionary object with key @'width' and @'height', the value of should be a positive integer. Examples:
  *					-	NSArray *keys = [NSArray arrayWithObjects:@"width", @"height", nil];
  *					-	NSArray *dimension1 = [NSArray arrayWithObjects:[NSNumber numberWithInt:1980], [NSNumber numberWithInt:1080], nil];
  *					-	NSArray *dimension2 = [NSArray arrayWithObjects:[NSNumber numberWithInt:1280], [NSNumber numberWithInt:720], nil];
@@ -404,20 +410,18 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 
 /**
  *	Set request mode of AdManager.
- *	\param	mode	a string indicates the request mode, must be one of:
- *					- FW_REQUEST_MODE_ON_DEMAND
+ *	\param	mode	request mode, must be one of:
+ *					- FW_REQUEST_MODE_ON_DEMAND (default)
  *					- FW_REQUEST_MODE_LIVE
  *			
  *	Notes:
- *		AdManager runs in On-Demand mode(_FW_REQUEST_MODE_ON_DEMAND) by default, invoke this method to set a player to a different mode.
- *		Invocation of this method is required right after a player gets a new AdManager instance.
- *		AdManager will reset some capabilities during the invocation.
+ *		AdManager runs in On-Demand mode(_FW_REQUEST_MODE_ON_DEMAND) by default. If your video asset is a live stream, invoke this method to set the player to live mode. This method should be called (if needed) right after a new FWContext instance is created.
  *	
  */
 - (void)setRequestMode:(FWRequestMode)mode;
 
 /**
- *	Set the duration for which the player is requesting ads. Player isn't required to set this value.
+ *	Set the duration for which the player is requesting ads. Optional.
  *	\param	requestDuration		requesting duration value, in seconds.
  */
 - (void)setRequestDuration:(NSTimeInterval)requestDuration;
@@ -428,24 +432,24 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (void)resetExclusivity;
 
 /**
- *	Start a subsession. Following requests will be in this subsession, until this method is called again with a different token.
- *	\param	subsessionToken		a token to identify the subsession. Use a differnt token to start a new subsession.
+ *	Start a subsession in live mode. Subsequent requests will be in the same subsession, until this method is called again with a different token.
+ *	\param	subsessionToken		a token to identify the subsession, should be unique across different subsessions. Use a differnt token to start a new subsession.
  *	    
  *	Note:
- *		It is not supported to use a previously used token to reuse a previous subsession.
+ *		Calling this method multiple times with the same token will have no effect.
  *		Subsession only works when FW_CAPABILITY_SYNC_MULTI_REQUESTS is on, calling this method will turn on this capability.
  */
 - (void)startSubsession:(NSUInteger)subsessionToken;
 
 /**
- *	Get video asset's url location
+ *	Get video asset's location URL
  *
- *	\return A String set by API setVideoAsset's location parameter, or nil if not set
+ *	\return video asset's URL, nil if not set
  */
 - (NSString *)getVideoLocation;
 
 /**
- *  Get the AdManager instance which create the current Context
+ *  Get the AdManager instance for this context
  *
  *  \return A id<FWAdManager> instance
  */
@@ -457,7 +461,7 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (NSNotificationCenter *)notificationCenter;
 
 /**
- *	Notify user actions to FW when the users actions happend in vide player side.
+ *	Notify AdManager about user actions
  *	\param	userAction		user actions, must be one of:
  *							- FW_USER_ACTION_PAUSE_BUTTON_CLICKED
  *							- FW_USER_ACTION_RESUME_BUTTON_CLICKED
@@ -472,13 +476,13 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 @protocol FWSlot <NSObject>
 
 /**
- *	Get custom id of the slot
- *	\return Custom id of the slot
+ *	Get the slot's custom ID
+ *	\return Custom ID of the slot
  */
 - (NSString *)customId;  
 
 /**
- *	Get type of the slot
+ *	Get the slot's type
  *	\return Type of the slot, the value can be one of:
  *		-	FW_SLOT_TYPE_TEMPORAL
  *		-	FW_SLOT_TYPE_VIDEOPLAYER_NONTEMPORAL
@@ -487,24 +491,25 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (FWSlotType)type;				
 
 /**
- *	Get time position of the slot
+ *	Get the slot's time position
  *	\return Time position of the slot
  */
 - (NSTimeInterval)timePosition;     
 
 /**
- *	Get time position class
+ *	Get slot's time position class
  *	\return Time position class of the slot, the value can be one of:
- *		-	FW_TIME_POSITION_CLASS_PREROLL
- *		-	FW_TIME_POSITION_CLASS_MIDROLL
- *		-	FW_TIME_POSITION_CLASS_POSTROLL
- *		-	FW_TIME_POSITION_CLASS_OVERLAY
- *		-	FW_TIME_POSITION_CLASS_DISPLAY
+ *   - FW_TIME_POSITION_CLASS_PREROLL
+ *   - FW_TIME_POSITION_CLASS_MIDROLL
+ *   - FW_TIME_POSITION_CLASS_POSTROLL
+ *   - FW_TIME_POSITION_CLASS_OVERLAY
+ *   - FW_TIME_POSITION_CLASS_DISPLAY
+ *   - FW_TIME_POSITION_CLASS_PAUSE_MIDROLL
  */
 - (FWTimePositionClass)timePositionClass;	   
 
 /**
- *	Get ad instances in the slot
+ *	Get the ad instances in the slot
  *	\return An array of id<FWAdInstance>
  */
 - (NSArray * /* <id>FWAdInstance */)adInstances;
@@ -530,11 +535,8 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 /**
  *	Play the slot.
  *
- *	Note: MPMoviePlayerController supports only one active stream at one time.  If app uses MPMoviePlayerController for content, 
- *	For preroll/postroll, this limitation has no impact.  
- *	For midroll, recommended way is: release the content MPMoviePlayerController before midroll start, create a new 
- *	MPMoviePlayerController & reconnect content stream after midroll ends.  
- *	AVPlayer does not have this limitation. If app uses AVPlayer for content, content can be paused before midroll start and resumed after midroll end.
+ *	Note: If your app uses MPMoviePlayerController for content video playback, you will need to release the player when a midroll video slot is about to start, and re-create a new MPMoviePlayerController after the midroll slot ends, starting from where it was left off. This is due to the limitation that MPMoviePlayerController only supports one active stream at a time.
+ *	AVPlayer does not have this limitation.
  */
 - (void)play;
 
@@ -544,7 +546,7 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (void)stop;
 
 /**
- *	Get visibility of nontemporal slot. visible is YES by default.
+ *	Get slot's visibility. Only applicable to non-temporal slots. YES by default.
  */
 - (BOOL)visible;
 
@@ -552,7 +554,7 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
  *	Set the visibility for a nontemporal slot. 
  *
  *	If a nontemporal slot view should not be visible, call setVisible:NO before the slot starts. In this case there will be no impression sent to FreeWheel ad server, even if [slot play] has already been called. 
- *  If a nontemporal slot has started([slot play] has been called) when it has been set invisible, calling setVisible:YES will display the slot and send an impression.
+ *  If a nontemporal slot has started([slot play] has been called) when it is invisible, calling setVisible:YES will display the slot and send an impression.
  *
  *	Note:
  *		This method has no effect on temporal slots.
@@ -564,15 +566,15 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 
 /**
  *	Get slot base UIView object.
- *	For nontemporal slot, return value should be added as other UIView object's child.
- *	For temporal slot, return value is the object passed from -[FWContext setVideoDisplayBase:].
+ *	For nontemporal slots, the returned UIView should be added to a parent UIView that is already in your apps view hierarchy.
+ *	For temporal slot, return value is the object set by -[FWContext setVideoDisplayBase:].
  */
 - (UIView *)slotBase;
 
 /**
- *	Set a parameter for the slot on the slot level
- *	\param	name	name of the parameter to be set
- *	\param	value	value for the parameter
+ *	Set a parameter on the slot level
+ *	\param	name	name of the parameter
+ *	\param	value	value of the parameter
  */
 - (void)setParameter:(NSString *)name withValue:(id)value;
 
@@ -584,20 +586,20 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (id)getParameter:(NSString *)name;
 
 /** 
- *  Get the duration of the slot
+ *  Get the slot's duration
  *  \return the duration in seconds, greater than or equal to 0 
  */  
 - (NSTimeInterval)totalDuration;
 
 /** 
- *  Get the playhead time of the slot
+ *  Get the slot's playhead
  *  \return the playhead time in seconds, greater than or equal to 0
  */  
 - (NSTimeInterval)playheadTime;
 
 /**
- *	Get current playinng AdInstance
- *	\return the AdInstance object of current playing ad in this slot. if no ad is playing on the slot when it invoked, nil will be returned.
+ *	Get the currently playing ad instance
+ *	\return the AdInstance object of the currently playing ad in this slot. Return nil if no ad instance is currently playing.
  */
 - (id<FWAdInstance>)currentAdInstance;
 @end
@@ -609,30 +611,29 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 @protocol FWAdInstance <NSObject>
 
 /**
- *	Get ad id of the ad instance
- *	This is the ad id value associated with this ad. This value can also be found in the advertising module of the FreeWheel MRM UI.
- *	\return Ad id as an unsigned int
+ *	Get the ad ID of the ad instance. This value can also be found in the advertising module of the FreeWheel MRM UI.
+ *	\return ID of the ad instance
  */
 - (NSUInteger)adId;
 
 /**
- *	Get creative id of the ad instance
- *	This is the creative id associated with this ad. The value can also be found in the advertising module of the FreeWheel MRM UI.
- *	\return Creative id as an unsigned int
+ *	Get the creative ID of the ad instance
+ *	This is the creative ID associated with this ad. The value can also be found in the advertising module of the FreeWheel MRM UI.
+ *	\return Creative ID as an unsigned int
  */
 - (NSUInteger)creativeId;
 
 /**
- *	Get primary rendition of the ad instance
+ *	Get the primary rendition of the ad instance
  *	\return An id<FWCreativeRendition>
  */
 - (id<FWCreativeRendition>)primaryCreativeRendition;
 
 /**
- *	Get callback urls for specific event
+ *	Get the callback urls for the specified event
  *
- *	\param	eventName	name of event, FW_EVENT_AD_*
- *	\param	eventType	type of event, FW_EVENT_TYPE_*
+ *	\param	eventName	name of the event, FW_EVENT_AD_*
+ *	\param	eventType	type of the event, FW_EVENT_TYPE_*
  *	Valid eventName/evetType pairs:
  *		- (FW_EVENT_AD_IMPRESSION,        FW_EVENT_TYPE_IMPRESSION)	-	ad impression
  *		- (FW_EVENT_AD_FIRST_QUARTILE,	  FW_EVENT_TYPE_IMPRESSION) -	firstQuartile
@@ -660,7 +661,7 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (NSArray *)getEventCallbackUrls:(NSString *)eventName :(NSString *)eventType;
 
 /**
- *	Set callback urls for specific event
+ *	Set callback urls for the specified event
  *
  *	\param	eventName	name of event, FW_EVENT_AD_*
  *	\param	eventType	type of event, FW_EVENT_TYPE_*
@@ -672,7 +673,9 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
  *		- (FW_EVENT_AD_THIRD_QUARTILE,    FW_EVENT_TYPE_IMPRESSION)	-	3rd quartile
  *		- (FW_EVENT_AD_COMPLETE,          FW_EVENT_TYPE_IMPRESSION)	-	complete
  *		- (FW_EVENT_AD_CLICK,             FW_EVENT_TYPE_CLICK)		-	click through
- *		- ("custom_click_name",           FW_EVENT_TYPE_CLICK)			-	custom click
+ *		- (FW_EVENT_AD_CLICK,             FW_EVENT_TYPE_CLICK_TRACKING)	-	click tracking
+ *		- ("custom_click_name",           FW_EVENT_TYPE_CLICK)			-	custom click through
+ *		- ("custom_click_name",           FW_EVENT_TYPE_CLICK_TRACKING)	-	custom click tracking
  *		- (FW_EVENT_AD_PAUSE,             FW_EVENT_TYPE_STANDARD)		-	IAB metric, pause
  *		- (FW_EVENT_AD_RESUME,            FW_EVENT_TYPE_STANDARD)		-	IAB metric, resume
  *		- (FW_EVENT_AD_REWIND,            FW_EVENT_TYPE_STANDARD)		-	IAB metric, rewind
@@ -693,14 +696,14 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (id<FWCreativeRendition>)addCreativeRendition;
 
 /**
- *	Get renderer controller of the ad instance
+ *	Get the renderer controller of the ad instance
  *	\return An id<FWRendererController>
  */
 - (id<FWRendererController>)rendererController;
 
 
 /**
- *	Get the companion slots which are able to schedule companion
+ *	Get the companion slots of the ad instance
  * \return an array of id<FWSlot>
  */
 - (NSArray *)companionSlots;
@@ -717,7 +720,7 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (void)setPrimaryCreativeRendition:(id<FWCreativeRendition>)primaryCreativeRendition;
 
 /**
- *	Get rendering slot
+ *	Get the slot that contains this ad instance
  */
 - (id<FWSlot>)slot;
 @end
@@ -921,20 +924,22 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 
 
 /**
- *	Protocol for a renderer to send information
- *	The FWRendererController provides methods that can be used to indicate the occurrence of metric events and change renderer state.
+ *	Protocol for renderer controller
+ *	The FWRendererController class provides methods for reporting metric events and changing renderer states.
  */
 @protocol FWRendererController <NSObject>
 
 /**
- *  Return the current location of FWAdManager objects for geo targeting.
- *  Player sets it via -[FWAdManager setLocation:].
+ *  Return the current location.
+ *  See also: -[FWAdManager setLocation:]
+ *  \return current location
  */
 - (CLLocation *)location;
 
 /**
- *	Return application's current view controller for presenting fullscreen ad views. Player sets it via -[FWAdManager setCurrentViewController:].
- *
+ *	Return application's current view controller. 
+ *  See also: -[FWAdManager setCurrentViewController:].
+ *  \return current view controller
  */
 - (UIViewController *)currentViewController;
 
@@ -944,42 +949,48 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (MPMoviePlayerController *)moviePlayerController;
 
 /**
- *	Return the main video's fullscreen state. Player sets it via -[FWContext setMoviePlayerFullscreen:].
+ *	Return the video player's fullscreen state.
+ *  See also: -[FWContext setMoviePlayerFullscreen:]
  *
  *	Availability: iOS >= 3.2 
+ *  \return fullscreen state
  */
 - (BOOL)moviePlayerFullscreen;
 
 /**
  *	Process renderer event
  *	\param	eventName Event to be processed, one of FW_EVENT_AD_* in FWConstants.h
- *  \param  details  The sl infomation need to be processed by AdManager. Available keys:
+ *  \param  details  Additional information. Available keys:
  * 					- FW_INFO_KEY_CUSTOM_EVENT_NAME Optional. 
- * 					When eventName is FW_EVENT_AD_CLICK, renderer tells the custom click event to be processed via this key.
+ * 					Name of the custom event.
  * 					- FW_INFO_KEY_SHOW_BROWSER Optional. 
  * 					Force opening/not openning the event callback url in new app.
- * 					If this key is not provided, AdManager use the setting booked in MRM UI (recommanded).
+ * 					If this key is not provided, AdManager will use the setting booked in MRM UI (recommanded).
+ * 					- FW_INFO_KEY_URL Optional. 
+ * 					URL to open or used as redirect url on FW_EVENT_AD_CLICK.
+ * 					If this key is not provided, the URL booked in MRM UI will be used.
  */
 - (void)processEvent:(NSString *)eventName info:(NSDictionary *)details;
 
 /**
- *	Declare capability of the renderer
+ *	Declare a capability of the renderer
  *	\param	eventCapability One of FW_EVENT_AD_* (NOT including FW_EVENT_AD_FIRST_QUARTILE, FW_EVENT_AD_THIRD_QUARTILE, FW_EVENT_AD_IMPRESSION) in FWConstants.h
- *	\param	status True if renderer has specified capability or is able to send specified event
+ *	\param	status ON if renderer has specified capability or is able to send specified event
  *
  *	Note: \n
- *	Changing renderer capability after renderer starts playing may result undefined behaviour
+ *	Changing renderer capability after renderer starts playing may result in undefined behaviour
  */
 - (void)setCapability:(NSString *)eventCapability :(FWCapabilityStatus)status;
 
 /**
- *	Renturn the Major version of AdManager, e.g. 0x02060000 for v2.6
+ *	Return the Major version of AdManager, e.g. 0x02060000 for v2.6
+ *  \return version as NSUInteger
  */
 - (NSUInteger)version;
 
 /**
  *	Retrieve a parameter
- *  \param  name  The name of the parameter need to retrieve
+ *  \param  name  Parameter name
  */
 - (id)getParameter:(NSString *)name;
 
@@ -989,35 +1000,33 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
 - (id<FWAdInstance>)adInstance;
 
 /**
- * Change state for current renderer
- * \param  state	target transition state demanded, available values:
+ * Transit renderer state
+ * \param  state	destination transition state attempted, available values:
  * 					- FW_RENDERER_STATE_STARTED
  * 					- FW_RENDERER_STATE_COMPLETED
  * 					- FW_RENDERER_STATE_FAILED
- * \param  details	detail info to be passed
+ * \param  details	detail info
  * 					- For FW_RENDERER_STATE_FAILED:FW_INFO_KEY_ERROR_CODE are required. FW_INFO_KEY_ERROR_INFO is optional.
  */
 - (void)handleStateTransition:(FWRendererStateType)state info:(NSDictionary *)details;
 
 /**
- *	Return id<FWContext> object, which can be used to listen notification using it's notificationCenter
- *  and as the sender of any notification which renderer need to post
+ *	Return an id<FWContext> instance for posting and observing notifications
  *
- *	Note: \n
- *	for post a notification: \n
+ *	To post a notification: \n
  *	[[[rendererController notificationContext] notificationCenter] postNotificationName:EVENT_NAME object:[_rendererController notificationContext] userInfo:nil]; \n
- *	for listen a notification: \n
+ *	To observe a notification: \n
  *	[[[rendererController notificationContext] notificationCenter] addObserver:self selector:@selector(handler) name:EVENT_NAME object:nil];
  */
 - (id<FWContext>)notificationContext;
 
 /**
- *	Schedule ad instances for the given slots.
+ *	Schedule ad instances for given slots.
  */
 - (NSArray * /* id<FWAdInstance> */)scheduleAdInstances:(NSArray * /* id<FWSlot> */)slots;
 
 /**
- *	Renderer can use this to request main video to pause or resume, the notification sender is current FWContext object
+ *	Request main video to pause or resume, the notification sender is the current FWContext object
  */
 - (void)requestContentStateChange:(BOOL)pause;
 
@@ -1033,52 +1042,66 @@ FW_EXTERN BOOL FWGetCookieOptOutState(void);
  */
 @protocol FWRenderer <NSObject>
 /**
- *	Notify the renderer to initialize.
+ *	Initialize the renderer with a renderer controller. 
  *	
  *	\param	rendererController	reference to id<FWRendererController>
  *		
  *	Note:
- *		Typically the renderer will declare all available capabilities and events when receive this notification.
+ *		Typically the renderer declares all available capabilities and events when this method is called.
  */
 - (id)initWithRendererController:(id<FWRendererController>)rendererController;
 
 /**
- *	Notify the renderer to start ad playback.
+ *	Start ad playback.
  *	
  *	Note:
- *		The renderer should start the ad playback when receive this notification,
- *		and transit to FW_RENDERER_STATE_STARTED state as soon as ad is actually playing.
+ *		The renderer should start the ad playback when this method is called,
+ *		and transit to FW_RENDERER_STATE_STARTED state as soon as the ad has started.
  *		
- *		When an ad stops either by user action or just for it ends, the renderer should
- *		transit to FW_RENDERER_STATE_COMPLETED state as soon as ad is actually stopped.
+ *		When the ad stops (either interrupted or reached the end), the renderer should
+ *		transit to FW_RENDERER_STATE_COMPLETED state.
  */
 - (void)start;
 
 /**
- *	Notify the renderer to stop.
+ *	Stop ad playback.
  *
  *	Note:
- *		Typically the renderer will dispose playing images/videos from screen when receive this notificaiton.
+ *		Typically the renderer will dispose playing images/videos from screen when receive this notificaiton, and 
+ *      transit to FW_RENDERER_STATE_COMPLETED state as soon as the ad is stopped.
  */
 - (void)stop;
 
 /**
  *	Get module info. The returned dictionary should contain key FW_INFO_KEY_MODULE_TYPE with FW_MODULE_TYPE_* value,
- *  and should contain key FW_INFO_KEY_REQUIRED_API_VERSION with the FreeWheel RDK version when the component compiled.
+ *  and should contain key FW_INFO_KEY_REQUIRED_API_VERSION with the FreeWheel RDK version when the component is compiled.
  */
 - (NSDictionary *)moduleInfo;
 
 
 /**
  *	Get duration of the ad
- *      \return a number in seconds, which is greater than or equal to 0, but if not available return -1
+ *  \return a positive number in seconds as NSTimeInterval, or -1 if the duration is N/A
  */
 - (NSTimeInterval)duration;
 
 /** 
  *	Get playheadTime of the ad
- * 	\return a number in seconds, which is greater than or equal to 0, but if not available return -1
+ * 	\return a positive number in seconds as NSTimeInterval, or -1 if the playhead time is N/A
  */  
 - (NSTimeInterval)playheadTime;
+
+@optional
+
+/**
+ *	Pause ad playback.
+ */
+- (void)pause;
+
+/**
+ *	Resume ad playback.
+ */
+- (void)resume;
+
 @end
 

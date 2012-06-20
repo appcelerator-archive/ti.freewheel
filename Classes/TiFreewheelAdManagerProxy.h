@@ -18,6 +18,7 @@
     NSString *currentSlotID;
     NSURL *currentContentUrl; // video content url used after slots are finished
     MPMoviePlayerController *currentPlayer; // video player that is rendering content
+    TiViewProxy *currentParent;
     TiViewProxy *currentBase; // used to attach FW views
     TiViewProxy *currentCompanionBase; // used to attach companion ad
     BOOL processCompanion;

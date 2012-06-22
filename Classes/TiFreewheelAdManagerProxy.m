@@ -79,7 +79,6 @@
     currentContentUrl = [args objectForKey:@"contentUrl"];
     currentFallbackId = [args objectForKey:@"fallbackId"];
     currentBase = [args objectForKey:@"base"];
-    currentParent = [args objectForKey:@"parent"];
     currentCompanionBase = [args objectForKey:@"companionBase"];
     currentSiteSection = [args objectForKey:@"siteSection"];
     currentVideoId = [args objectForKey:@"videoId"];
@@ -250,8 +249,7 @@
     TiThreadPerformOnMainThread(^{
         [[currentBase view] sizeToFit];  
     }, YES);
-    
-    DLog(@"[DEBUG] (FreeWheel Module) Parent: %@", [[currentParent view] description]);
+        
     DLog(@"[DEBUG] (FreeWheel Module) Display Base: %@", [[currentBase view] description]); 
     DLog(@"[DEBUG] (FreeWheel Module) %@", [[UIWindow keyWindow] recursiveDescription]);
 }
@@ -358,10 +356,9 @@
         
     DLog(@"[DEBUG] (FreeWheel Module) Companion Base Subview Count: %d", [[[currentCompanionBase view] subviews] count]); // just checking to see if the slotBase is being removed correctly
 
-    DLog(@"[DEBUG] (FreeWheel Module) Parent: %@", [[currentParent view] description]);
     DLog(@"[DEBUG] (FreeWheel Module) Display Base: %@", [[currentBase view] description]);
     DLog(@"[DEBUG] (FreeWheel Module) %@", [[UIWindow keyWindow] recursiveDescription]);
-    
+        
     RELEASE_TO_NIL(ads);
 }
 
@@ -402,7 +399,7 @@
     
     DLog(@"[DEBUG] (FreeWheel Module) Clicked an ad.");    
     
-    [[[[adContext getSlotByCustomId:currentSlotID] currentAdInstance] rendererController] processEvent:FW_EVENT_AD_CLICK info:nil];    
+    [[[[adContext getSlotByCustomId:currentSlotID] currentAdInstance] rendererController] processEvent:FW_EVENT_AD_CLICK info:nil];
 }
 
 - (void)destroyContext:(id)args

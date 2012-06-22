@@ -14,6 +14,9 @@
 
 #define FW_LINK_RENDERER(r) \
 @class r; \
+@interface r : NSObject { \
+} \
+@end; \
 extern void FWAdManager_Force_Link_##r (void) __attribute__ ((constructor)); \
 void FWAdManager_Force_Link_##r (void) { \
 NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init]; \

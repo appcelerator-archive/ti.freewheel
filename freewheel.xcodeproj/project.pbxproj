@@ -22,6 +22,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		243FA95C1594C218002B298F /* AdManager.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 243FA95B1594C218002B298F /* AdManager.framework */; };
+		243FA9601594C23B002B298F /* libAdManager.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 243FA95F1594C23B002B298F /* libAdManager.a */; };
 		247ACB2C145780A400CB9BFC /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 247ACB2A1457807000CB9BFC /* CoreLocation.framework */; };
 		247ACB2D145780A400CB9BFC /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 247ACB281457806900CB9BFC /* MediaPlayer.framework */; };
 		247ACB2E145780A400CB9BFC /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 247ACB261457806200CB9BFC /* QuartzCore.framework */; };
@@ -29,8 +31,6 @@
 		247ACB30145780A400CB9BFC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 247ACB221457805700CB9BFC /* UIKit.framework */; };
 		247ACB31145780A400CB9BFC /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 247ACB1F1457804700CB9BFC /* libxml2.dylib */; };
 		247ACB32145780A400CB9BFC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
-		247ACB35145780BD00CB9BFC /* AdManager.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 247ACB33145780AD00CB9BFC /* AdManager.framework */; };
-		247ACB401457869100CB9BFC /* libAdManager.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 247ACB3F1457869100CB9BFC /* libAdManager.a */; };
 		24DBB2131458A70A00DEC93A /* TiFreewheelAdManagerProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DBB2111458A70A00DEC93A /* TiFreewheelAdManagerProxy.h */; };
 		24DBB2141458A70A00DEC93A /* TiFreewheelAdManagerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DBB2121458A70A00DEC93A /* TiFreewheelAdManagerProxy.m */; };
 		24DD6CF91134B3F500162E58 /* TiFreewheelModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DD6CF71134B3F500162E58 /* TiFreewheelModule.h */; };
@@ -53,16 +53,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		243FA95B1594C218002B298F /* AdManager.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AdManager.framework; sourceTree = "<group>"; };
+		243FA95F1594C23B002B298F /* libAdManager.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAdManager.a; path = AdManager.framework/Libraries/libAdManager.a; sourceTree = "<group>"; };
 		247ACB1F1457804700CB9BFC /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		247ACB221457805700CB9BFC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		247ACB241457805C00CB9BFC /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		247ACB261457806200CB9BFC /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		247ACB281457806900CB9BFC /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		247ACB2A1457807000CB9BFC /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
-		247ACB33145780AD00CB9BFC /* AdManager.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AdManager.framework; sourceTree = "<group>"; };
 		247ACB37145780EA00CB9BFC /* FW_Back_Button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = FW_Back_Button.png; path = AdManager.framework/Resources/FW_Back_Button.png; sourceTree = "<group>"; };
 		247ACB38145780EA00CB9BFC /* FW_Forward_Button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = FW_Forward_Button.png; path = AdManager.framework/Resources/FW_Forward_Button.png; sourceTree = "<group>"; };
-		247ACB3F1457869100CB9BFC /* libAdManager.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAdManager.a; path = AdManager.framework/Libraries/libAdManager.a; sourceTree = "<group>"; };
 		24DBB2111458A70A00DEC93A /* TiFreewheelAdManagerProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiFreewheelAdManagerProxy.h; path = Classes/TiFreewheelAdManagerProxy.h; sourceTree = "<group>"; };
 		24DBB2121458A70A00DEC93A /* TiFreewheelAdManagerProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiFreewheelAdManagerProxy.m; path = Classes/TiFreewheelAdManagerProxy.m; sourceTree = "<group>"; };
 		24DD6CF71134B3F500162E58 /* TiFreewheelModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiFreewheelModule.h; path = Classes/TiFreewheelModule.h; sourceTree = "<group>"; };
@@ -82,7 +82,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				247ACB401457869100CB9BFC /* libAdManager.a in Frameworks */,
 				247ACB32145780A400CB9BFC /* Foundation.framework in Frameworks */,
 				247ACB2C145780A400CB9BFC /* CoreLocation.framework in Frameworks */,
 				247ACB2D145780A400CB9BFC /* MediaPlayer.framework in Frameworks */,
@@ -90,7 +89,8 @@
 				247ACB2F145780A400CB9BFC /* CoreGraphics.framework in Frameworks */,
 				247ACB30145780A400CB9BFC /* UIKit.framework in Frameworks */,
 				247ACB31145780A400CB9BFC /* libxml2.dylib in Frameworks */,
-				247ACB35145780BD00CB9BFC /* AdManager.framework in Frameworks */,
+				243FA95C1594C218002B298F /* AdManager.framework in Frameworks */,
+				243FA9601594C23B002B298F /* libAdManager.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -108,7 +108,7 @@
 		0867D691FE84028FC02AAC07 /* freewheel */ = {
 			isa = PBXGroup;
 			children = (
-				247ACB3F1457869100CB9BFC /* libAdManager.a */,
+				243FA95F1594C23B002B298F /* libAdManager.a */,
 				247ACB36145780D000CB9BFC /* Resources */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
@@ -121,7 +121,7 @@
 		0867D69AFE84028FC02AAC07 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				247ACB33145780AD00CB9BFC /* AdManager.framework */,
+				243FA95B1594C218002B298F /* AdManager.framework */,
 				247ACB2A1457807000CB9BFC /* CoreLocation.framework */,
 				247ACB281457806900CB9BFC /* MediaPlayer.framework */,
 				247ACB261457806200CB9BFC /* QuartzCore.framework */,
@@ -279,13 +279,17 @@
 					armv7,
 				);
 				"ARCHS[sdk=iphonesimulator*]" = i386;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DSTROOT = /tmp/TiFreewheel.dst;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = TiFreewheel_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION = "";
@@ -297,9 +301,6 @@
 				GCC_WARN_UNUSED_PARAMETER = NO;
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "TiFreewheel_Prefix.pch";
 				INSTALL_PATH = /usr/local/lib;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -307,18 +308,17 @@
 					"\"$(SRCROOT)/AdManager.framework\"",
 					"\"$(SRCROOT)/AdManager.framework/Libraries\"",
 				);
-				PRODUCT_NAME = "TiFreewheel";
 				OTHER_CFLAGS = (
 					"-DDEBUG",
 					"-DTI_POST_1_2",
 				);
 				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = TiFreewheel;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = iphoneos;
 				USER_HEADER_SEARCH_PATHS = "";
-				DSTROOT = "/tmp/TiFreewheel.dst";
 			};
 			name = Debug;
 		};
@@ -326,6 +326,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 24DD6D1B1134B66800162E58 /* titanium.xcconfig */;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = (
 					armv6,
 					armv7,
@@ -335,11 +336,15 @@
 					armv7,
 				);
 				"ARCHS[sdk=iphonesimulator*]" = i386;
+				DSTROOT = /tmp/TiFreewheel.dst;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = TiFreewheel_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION = "";
@@ -351,27 +356,21 @@
 				GCC_WARN_UNUSED_PARAMETER = NO;
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "TiFreewheel_Prefix.pch";
 				INSTALL_PATH = /usr/local/lib;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 					"\"$(SRCROOT)/AdManager.framework/Libraries\"",
 					"\"$(SRCROOT)/AdManager.framework/Libraries\"",
+					"\"$(SRCROOT)/AdManager.framework\"",
 				);
-				PRODUCT_NAME = "TiFreewheel";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				OTHER_CFLAGS = "-DTI_POST_1_2";
 				OTHER_LDFLAGS = "-ObjC";
-				PROVISIONING_PROFILE = "";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PRODUCT_NAME = TiFreewheel;
 				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = iphoneos;
 				USER_HEADER_SEARCH_PATHS = "";
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				DSTROOT = "/tmp/TiFreewheel.dst";
 			};
 			name = Release;
 		};
@@ -390,7 +389,11 @@
 				"ARCHS[sdk=iphonesimulator*]" = i386;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DSTROOT = /tmp/TiFreewheel.dst;
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = TiFreewheel_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION = "";
@@ -402,22 +405,18 @@
 				GCC_WARN_UNUSED_PARAMETER = NO;
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "TiFreewheel_Prefix.pch";
 				INSTALL_PATH = /usr/local/lib;
-				PRODUCT_NAME = "TiFreewheel";
 				OTHER_CFLAGS = (
 					"-DDEBUG",
 					"-DTI_POST_1_2",
 				);
 				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = TiFreewheel;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = iphoneos;
 				USER_HEADER_SEARCH_PATHS = "";
-				DSTROOT = "/tmp/TiFreewheel.dst";
 			};
 			name = Debug;
 		};
@@ -425,6 +424,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 24DD6D1B1134B66800162E58 /* titanium.xcconfig */;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = (
 					armv6,
 					armv7,
@@ -434,7 +434,11 @@
 					armv7,
 				);
 				"ARCHS[sdk=iphonesimulator*]" = i386;
+				DSTROOT = /tmp/TiFreewheel.dst;
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = TiFreewheel_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION = "";
@@ -446,21 +450,14 @@
 				GCC_WARN_UNUSED_PARAMETER = NO;
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "TiFreewheel_Prefix.pch";
 				INSTALL_PATH = /usr/local/lib;
-				PRODUCT_NAME = "TiFreewheel";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				OTHER_CFLAGS = "-DTI_POST_1_2";
 				OTHER_LDFLAGS = "-ObjC";
-				PROVISIONING_PROFILE = "";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PRODUCT_NAME = TiFreewheel;
 				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = iphoneos;
 				USER_HEADER_SEARCH_PATHS = "";
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				DSTROOT = "/tmp/TiFreewheel.dst";
 			};
 			name = Release;
 		};

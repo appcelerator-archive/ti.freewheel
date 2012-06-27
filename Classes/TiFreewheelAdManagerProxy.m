@@ -47,10 +47,10 @@
 - (void)start:(id)args
 {
     ENSURE_UI_THREAD_0_ARGS;
-    
-    FWSetLogLevel(FW_LOG_LEVEL_INFO); // set this to FW_LOG_LEVEL_INFO for more logging
-        
+            
     adManager = newAdManager();
+    
+    FWSetLogLevel(FW_LOG_LEVEL_QUIET);
     
     [adManager setLocation:nil];
     [adManager setNetworkId:[networkId longLongValue]];

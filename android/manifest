@@ -15,4 +15,4 @@ name: freewheel
 moduleid: ti.freewheel
 guid: 51784f10-8afc-40f6-9380-9ec1ef90f90b
 platform: android
-minsdk: 1.8.0.1
+minsdk: 3.2.1.GA

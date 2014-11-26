@@ -14,4 +14,4 @@ name: freewheel
 moduleid: ti.freewheel
 guid: 51784f10-8afc-40f6-9380-9ec1ef90f90b
 platform: iphone
-minsdk: 1.8.1
+minsdk: 2.1.3.GA

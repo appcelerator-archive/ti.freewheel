@@ -1,0 +1,2 @@
+#define FW_SDK_VERSION @"4.8.2"
+#define FW_BUILD_STAMP "4.8.2-r8572-201206191027"

@@ -1,0 +1,7 @@
+OTHER_LDFLAGS=$(inherited) -framework AdManager
+OTHER_LDFLAGS=$(inherited) -framework CoreLocation
+OTHER_LDFLAGS=$(inherited) -framework MediaPlayer
+OTHER_LDFLAGS=$(inherited) -framework QuartzCore
+OTHER_LDFLAGS=$(inherited) -framework CoreGraphics
+OTHER_LDFLAGS=$(inherited) -framework UIKit
+OTHER_LDFLAGS=$(inherited) -framework Foundation
